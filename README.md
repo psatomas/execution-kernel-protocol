@@ -49,29 +49,30 @@ This enables a market of execution strategies rather than static execution logic
 
 ## Repository Structure
 
+```text
 execution-kernel-protocol/
 
 ├── packages/
-│   │
-│   ├── contracts/                    # On-chain execution core
+│
+│   ├── contracts/                         # On-chain execution core
 │   │   ├── src/
 │   │   │   ├── core/
 │   │   │   │   ├── ExecutionEngine.sol
-│   │   │   │   ├── IntentRegistry.sol
+│   │   │   │   └── IntentRegistry.sol
 │   │   │   │
-│   │   │   ├── modules/             # Execution primitives
-│   │   │   │   ├── RouterModule.sol
-│   │   │   │   ├── MevProtectionModule.sol
+│   │   │   ├── modules/                   # Execution primitives
 │   │   │   │   ├── ExecutionModuleBase.sol
+│   │   │   │   ├── RouterModule.sol
+│   │   │   │   └── MevProtectionModule.sol
 │   │   │   │
 │   │   │   ├── settlement/
-│   │   │   │   ├── SettlementRouter.sol
+│   │   │   │   └── SettlementRouter.sol
 │   │   │   │
 │   │   │   ├── registry/
-│   │   │   │   ├── ModuleRegistry.sol
+│   │   │   │   └── ModuleRegistry.sol
 │   │   │   │
 │   │   │   ├── access/
-│   │   │   │   ├── ProtocolRoles.sol
+│   │   │   │   └── ProtocolRoles.sol
 │   │   │   │
 │   │   │   └── interfaces/
 │   │   │
@@ -80,48 +81,48 @@ execution-kernel-protocol/
 │   │   ├── foundry.toml
 │   │   └── remappings.txt
 │   │
-│   ├── sdk/                          # Developer integration layer
+│   ├── sdk/                               # Developer integration layer
 │   │   ├── src/
 │   │   │   ├── intent/
 │   │   │   │   ├── intentBuilder.ts
-│   │   │   │   ├── types.ts
+│   │   │   │   └── types.ts
 │   │   │   │
 │   │   │   ├── execution/
 │   │   │   │   ├── executionClient.ts
-│   │   │   │   ├── moduleClient.ts
+│   │   │   │   └── moduleClient.ts
 │   │   │   │
 │   │   │   ├── registry/
 │   │   │   │
-│   │   │   ├── index.ts
+│   │   │   └── index.ts
 │   │
-│   ├── types/                        # Shared protocol definitions
+│   ├── types/                             # Shared protocol definitions
 │   │   ├── intent.ts
 │   │   ├── execution.ts
-│   │   ├── module.ts
+│   │   └── module.ts
 │   │
-│   ├── config/
-│   │   ├── chains.ts
-│   │   ├── addresses.ts
-│   │   ├── constants.ts
-
+│   └── config/
+│       ├── chains.ts
+│       ├── addresses.ts
+│       └── constants.ts
+│
 ├── apps/
-│   │
-│   ├── execution-node/               # Off-chain execution engine
+│
+│   ├── execution-node/                    # Off-chain execution engine
 │   │   ├── src/
 │   │   │   ├── engine/
 │   │   │   │   ├── intentProcessor.ts
-│   │   │   │   ├── executionGraphBuilder.ts
+│   │   │   │   └── executionGraphBuilder.ts
 │   │   │   │
 │   │   │   ├── solvers/
 │   │   │   │   ├── routerSolver.ts
-│   │   │   │   ├── mevSolver.ts
+│   │   │   │   └── mevSolver.ts
 │   │   │   │
 │   │   │   ├── execution/
-│   │   │   │   ├── executor.ts
+│   │   │   │   └── executor.ts
 │   │   │   │
-│   │   │   ├── index.ts
+│   │   │   └── index.ts
 │   │
-│   ├── indexer/                      # Execution observability layer
+│   ├── indexer/                           # Execution observability layer
 │   │   ├── src/
 │   │   │   ├── listeners/
 │   │   │   ├── processors/
@@ -129,34 +130,35 @@ execution-kernel-protocol/
 │   │   │   ├── db/
 │   │   │   └── index.ts
 │   │
-│   ├── api/                          # Integration API layer
+│   ├── api/                               # Integration API layer
 │   │   ├── src/
 │   │   │   ├── routes/
 │   │   │   ├── services/
 │   │   │   ├── controllers/
 │   │   │   └── index.ts
 │   │
-│   ├── frontend/                     # Intent-based UI layer
-│   │   ├── src/
-│   │   │   ├── pages/
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   ├── state/
-│   │   │   ├── services/
-│   │   │   └── lib/
-
+│   └── frontend/                          # Intent-based UI layer
+│       ├── src/
+│       │   ├── pages/
+│       │   ├── components/
+│       │   ├── hooks/
+│       │   ├── state/
+│       │   ├── services/
+│       │   └── lib/
+│
 ├── scripts/
 │   ├── deploy.ts
 │   ├── simulate-intents.ts
-│   ├── benchmark-execution.ts        # execution performance validation
-
+│   └── benchmark-execution.ts             # Execution performance validation
+│
 ├── docs/
 │   ├── architecture.md
 │   ├── intents.md
 │   ├── execution-graph.md
-│   ├── threat-model.md
-
+│   └── threat-model.md
+│
 └── README.md
+```
 
 ---
 
