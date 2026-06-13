@@ -65,7 +65,7 @@ contract ExecutionEngine {
     // INTERNAL SELECTION LOGIC
     // -----------------------------
 
-    function _selectBestModule(
+   function _selectBestModule(
         address user,
         bytes32 intentType,
         bytes calldata intentData,
@@ -76,33 +76,46 @@ contract ExecutionEngine {
         returns (address bestModule)
     {
         uint256 bestScore = 0;
-        bestModule = modules[0];
+        bool foundCompatibleModule = false;
 
         for (uint256 i = 0; i < modules.length; i++) {
 
-            IExecutionModule module = IExecutionModule(modules[i]);
+            IExecutionModule module =
+                IExecutionModule(modules[i]);
 
-            // Skip unsupported modules
             if (!module.supportsIntent(intentType)) {
                 continue;
             }
 
-            // Simulate execution
-            bytes memory sim = module.simulate(
-                user,
-                intentData,
-                abi.encode(intentType)
-            );
+            foundCompatibleModule = true;
 
-            // Decode simple score (protocol simplification)
+            bytes memory sim =
+                module.simulate(
+                    user,
+                    intentData,
+                    abi.encode(intentType)
+                );
+
             (, uint256 score, ,) =
-                abi.decode(sim, (string, uint256, uint256, address));
+                abi.decode(
+                    sim,
+                    (string, uint256, uint256, address)
+                );
 
-            // Higher score wins (cost-adjusted execution quality)
-            if (score > bestScore) {
+            if (
+                !foundCompatibleModule ||
+                score > bestScore
+            ) {
                 bestScore = score;
                 bestModule = modules[i];
             }
         }
+
+        require(
+            foundCompatibleModule,
+            "No compatible module"
+        );
+
+        return bestModule;
     }
 }
