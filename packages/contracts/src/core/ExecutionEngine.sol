@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "../interfaces/IExecutionModule.sol";
+import "../types/ExecutionQuote.sol";
 
 interface IModuleRegistry {
     function getModules(bytes32 intentType) external view returns (address[] memory);
@@ -65,7 +66,7 @@ contract ExecutionEngine {
     // INTERNAL SELECTION LOGIC
     // -----------------------------
 
-   function _selectBestModule(
+    function _selectBestModule(
         address user,
         bytes32 intentType,
         bytes calldata intentData,
@@ -79,9 +80,7 @@ contract ExecutionEngine {
         bool foundCompatibleModule = false;
 
         for (uint256 i = 0; i < modules.length; i++) {
-
-            IExecutionModule module =
-                IExecutionModule(modules[i]);
+            IExecutionModule module = IExecutionModule(modules[i]);
 
             if (!module.supportsIntent(intentType)) {
                 continue;
@@ -89,33 +88,27 @@ contract ExecutionEngine {
 
             foundCompatibleModule = true;
 
-            bytes memory sim =
-                module.simulate(
-                    user,
-                    intentData,
-                    abi.encode(intentType)
-                );
+            bytes memory sim = module.simulate(
+                user,
+                intentData,
+                abi.encode(intentType)
+            );
 
-            (, uint256 score, ,) =
-                abi.decode(
-                    sim,
-                    (string, uint256, uint256, address)
-                );
+            ExecutionQuote memory quote =
+                abi.decode(sim, (ExecutionQuote));
 
-            if (
-                !foundCompatibleModule ||
-                score > bestScore
-            ) {
+            uint256 score =
+                quote.executionQuality
+                - quote.executionCost
+                - quote.mevRisk
+                - quote.latencyScore;
+
+            if (!foundCompatibleModule || score > bestScore) {
                 bestScore = score;
                 bestModule = modules[i];
             }
         }
 
-        require(
-            foundCompatibleModule,
-            "No compatible module"
-        );
-
-        return bestModule;
+        require(foundCompatibleModule, "No compatible modules");
     }
 }

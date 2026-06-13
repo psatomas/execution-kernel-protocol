@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "../modules/ExecutionModuleBase.sol";
+import "../types/ExecutionQuote.sol";
 
 contract RouterModule is ExecutionModuleBase {
 
@@ -50,19 +51,17 @@ contract RouterModule is ExecutionModuleBase {
         internal
         view
         override
-        returns (bytes memory simulationResult)
+        returns (bytes memory)
     {
-        // Simulated routing cost + path quality score (placeholder model)
+        ExecutionQuote memory quote = ExecutionQuote({
+            tag: "ROUTE_SIMULATION",
+            executionCost: liquiditySources.length * 100,
+            executionQuality: 1000,
+            mevRisk: 10,
+            latencyScore: liquiditySources.length * 5
+        });
 
-        uint256 mockCost = liquiditySources.length * 100;
-        uint256 mockScore = 1000 - mockCost;
-
-        return abi.encode(
-            "ROUTE_SIMULATION",
-            mockCost,
-            mockScore,
-            user
-        );
+        return abi.encode(quote);
     }
 
     /// @notice Cost estimation for execution graph optimization
