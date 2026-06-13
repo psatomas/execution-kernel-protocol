@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "../interfaces/IExecutionModule.sol";
-import "../types/ExecutionQuote.sol";
+import "../policy/ScorePolicy.sol";
 
 interface IModuleRegistry {
     function getModules(bytes32 intentType) external view returns (address[] memory);
@@ -11,6 +11,7 @@ interface IModuleRegistry {
 contract ExecutionEngine {
 
     IModuleRegistry public immutable moduleRegistry;
+    ScorePolicy public immutable scorePolicy;
 
     event IntentExecuted(
         address indexed user,
@@ -19,8 +20,12 @@ contract ExecutionEngine {
         bytes result
     );
 
-    constructor(address _moduleRegistry) {
+    constructor(
+        address _moduleRegistry,
+        address _scorePolicy
+    ) {
         moduleRegistry = IModuleRegistry(_moduleRegistry);
+        scorePolicy = ScorePolicy(_scorePolicy);
     }
 
     /// @notice Main entrypoint of the execution kernel
@@ -76,8 +81,8 @@ contract ExecutionEngine {
         view
         returns (address bestModule)
     {
-        uint256 bestScore = 0;
-        bool foundCompatibleModule = false;
+        uint256 bestScore;
+        bool initialized;
 
         for (uint256 i = 0; i < modules.length; i++) {
             IExecutionModule module = IExecutionModule(modules[i]);
@@ -85,8 +90,6 @@ contract ExecutionEngine {
             if (!module.supportsIntent(intentType)) {
                 continue;
             }
-
-            foundCompatibleModule = true;
 
             bytes memory sim = module.simulate(
                 user,
@@ -97,18 +100,15 @@ contract ExecutionEngine {
             ExecutionQuote memory quote =
                 abi.decode(sim, (ExecutionQuote));
 
-            uint256 score =
-                quote.executionQuality
-                - quote.executionCost
-                - quote.mevRisk
-                - quote.latencyScore;
+            uint256 score = scorePolicy.evaluate(quote);
 
-            if (!foundCompatibleModule || score > bestScore) {
+            if (!initialized || score > bestScore) {
                 bestScore = score;
                 bestModule = modules[i];
+                initialized = true;
             }
         }
 
-        require(foundCompatibleModule, "No compatible modules");
+        require(initialized, "No compatible modules");
     }
 }
