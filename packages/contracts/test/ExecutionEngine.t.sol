@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import "forge-std/Test.sol";
 
 import "../src/core/ExecutionEngine.sol";
+import "../src/core/IntentRegistry.sol";
 import "../src/registry/ModuleRegistry.sol";
 import "../src/policy/ScorePolicy.sol";
 
@@ -14,6 +15,7 @@ import "./mocks/MockUnsupportedModule.sol";
 contract ExecutionEngineTest is Test {
 
     ExecutionEngine engine;
+    IntentRegistry intentRegistry;
     ModuleRegistry registry;
     ScorePolicy scorePolicy;
 
@@ -26,12 +28,16 @@ contract ExecutionEngineTest is Test {
 
     function setUp() public {
 
+        intentRegistry = new IntentRegistry();
+        intentRegistry.registerIntent(ROUTE_INTENT, "Route");
+
         registry = new ModuleRegistry();
 
         // Equal weights: score = quality - cost - mevRisk - latencyScore
         scorePolicy = new ScorePolicy(1, 1, 1, 1);
 
         engine = new ExecutionEngine(
+            address(intentRegistry),
             address(registry),
             address(scorePolicy)
         );
@@ -80,16 +86,50 @@ contract ExecutionEngineTest is Test {
     function testEngineRevertsWhenNoModules()
         public
     {
-        bytes32 unknownIntent =
-            keccak256("UNKNOWN");
+        // Registered and active, but no modules assigned to it yet.
+        bytes32 emptyIntent =
+            keccak256("EMPTY");
+
+        intentRegistry.registerIntent(emptyIntent, "Empty");
 
         vm.expectRevert(
             bytes("No modules available")
         );
 
         engine.executeIntent(
+            emptyIntent,
+            abi.encode("data")
+        );
+    }
+
+    function testEngineRevertsWhenIntentNotRegistered()
+        public
+    {
+        bytes32 unknownIntent =
+            keccak256("UNKNOWN");
+
+        vm.expectRevert(
+            bytes("Intent not active")
+        );
+
+        engine.executeIntent(
             unknownIntent,
             abi.encode("data")
+        );
+    }
+
+    function testEngineRevertsWhenIntentDeactivated()
+        public
+    {
+        intentRegistry.setIntentStatus(ROUTE_INTENT, false);
+
+        vm.expectRevert(
+            bytes("Intent not active")
+        );
+
+        engine.executeIntent(
+            ROUTE_INTENT,
+            abi.encode("swap")
         );
     }
 
@@ -109,11 +149,16 @@ contract ExecutionEngineTest is Test {
     function testRevertWhenNoModuleSupportsIntent()
         public
     {
+        IntentRegistry localIntentRegistry =
+            new IntentRegistry();
+        localIntentRegistry.registerIntent(ROUTE_INTENT, "Route");
+
         ModuleRegistry localRegistry =
             new ModuleRegistry();
 
         ExecutionEngine localEngine =
             new ExecutionEngine(
+                address(localIntentRegistry),
                 address(localRegistry),
                 address(scorePolicy)
             );
