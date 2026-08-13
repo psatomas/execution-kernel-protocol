@@ -8,9 +8,14 @@ interface IModuleRegistry {
     function getModules(bytes32 intentType) external view returns (address[] memory);
 }
 
+interface IIntentRegistry {
+    function isIntentActive(bytes32 intentType) external view returns (bool);
+}
+
 contract ExecutionEngine {
 
     IModuleRegistry public immutable moduleRegistry;
+    IIntentRegistry public immutable intentRegistry;
     ScorePolicy public immutable scorePolicy;
 
     event IntentExecuted(
@@ -21,9 +26,11 @@ contract ExecutionEngine {
     );
 
     constructor(
+        address _intentRegistry,
         address _moduleRegistry,
         address _scorePolicy
     ) {
+        intentRegistry = IIntentRegistry(_intentRegistry);
         moduleRegistry = IModuleRegistry(_moduleRegistry);
         scorePolicy = ScorePolicy(_scorePolicy);
     }
@@ -38,13 +45,17 @@ contract ExecutionEngine {
     {
         address user = msg.sender;
 
-        // 1. Fetch candidate modules
+        // 1. Reject intent types that were never registered, or were
+        //    deactivated by governance (IntentRegistry.setIntentStatus).
+        require(intentRegistry.isIntentActive(intentType), "Intent not active");
+
+        // 2. Fetch candidate modules
         address[] memory modules =
             moduleRegistry.getModules(intentType);
 
         require(modules.length > 0, "No modules available");
 
-        // 2. Evaluate best module via simulation scoring
+        // 3. Evaluate best module via simulation scoring
         address bestModule = _selectBestModule(
             user,
             intentType,
@@ -52,7 +63,7 @@ contract ExecutionEngine {
             modules
         );
 
-        // 3. Execute selected module
+        // 4. Execute selected module
         result = IExecutionModule(bestModule).execute(
             user,
             intentData,
@@ -81,7 +92,7 @@ contract ExecutionEngine {
         view
         returns (address bestModule)
     {
-        uint256 bestScore;
+        int256 bestScore;
         bool initialized;
 
         for (uint256 i = 0; i < modules.length; i++) {
@@ -100,7 +111,7 @@ contract ExecutionEngine {
             ExecutionQuote memory quote =
                 abi.decode(sim, (ExecutionQuote));
 
-            uint256 score = scorePolicy.evaluate(quote);
+            int256 score = scorePolicy.evaluate(quote);
 
             if (!initialized || score > bestScore) {
                 bestScore = score;

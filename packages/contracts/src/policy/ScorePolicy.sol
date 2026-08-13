@@ -31,20 +31,23 @@ contract ScorePolicy {
     }
 
     /// @notice Converts ExecutionQuote into a comparable score
-    /// @dev Higher score = better execution option
+    /// @dev Higher score = better execution option. Signed on purpose: a module
+    ///      whose penalty terms outweigh its quality has a legitimately negative
+    ///      score, and must not revert the caller's selection loop over it
+    ///      (see ExecutionEngine._selectBestModule).
     function evaluate(ExecutionQuote memory q)
         external
         view
-        returns (uint256 score)
+        returns (int256 score)
     {
         // Weighted scoring model
         // quality is positive
         // others are penalties
 
         score =
-            (q.executionQuality * weights.qualityWeight)
-            - (q.executionCost * weights.costWeight)
-            - (q.mevRisk * weights.mevWeight)
-            - (q.latencyScore * weights.latencyWeight);
+            (int256(q.executionQuality) * int256(weights.qualityWeight))
+            - (int256(q.executionCost) * int256(weights.costWeight))
+            - (int256(q.mevRisk) * int256(weights.mevWeight))
+            - (int256(q.latencyScore) * int256(weights.latencyWeight));
     }
 }

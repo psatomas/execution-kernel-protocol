@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "../../src/modules/ExecutionModuleBase.sol";
+import "../../src/types/ExecutionQuote.sol";
 
 contract MockUnsupportedModule is ExecutionModuleBase {
 
@@ -26,7 +27,7 @@ contract MockUnsupportedModule is ExecutionModuleBase {
     }
 
     function _simulate(
-        address user,
+        address,
         bytes calldata,
         bytes calldata
     )
@@ -35,12 +36,15 @@ contract MockUnsupportedModule is ExecutionModuleBase {
         override
         returns (bytes memory)
     {
-        return abi.encode(
-            "UNSUPPORTED_SIMULATION",
-            uint256(100),
-            uint256(9999),
-            user
-        );
+        ExecutionQuote memory quote = ExecutionQuote({
+            tag: "UNSUPPORTED_SIMULATION",
+            executionCost: 9999,
+            executionQuality: 100,
+            mevRisk: 9999,
+            latencyScore: 9999
+        });
+
+        return abi.encode(quote);
     }
 
     function _estimateCost(

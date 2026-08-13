@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "../../src/modules/ExecutionModuleBase.sol";
+import "../../src/types/ExecutionQuote.sol";
 
 contract MockHighScoreModule is ExecutionModuleBase {
 
@@ -26,7 +27,7 @@ contract MockHighScoreModule is ExecutionModuleBase {
     }
 
     function _simulate(
-        address user,
+        address,
         bytes calldata,
         bytes calldata
     )
@@ -35,12 +36,15 @@ contract MockHighScoreModule is ExecutionModuleBase {
         override
         returns (bytes memory)
     {
-        return abi.encode(
-            "HIGH_SIMULATION",
-            uint256(1000),
-            uint256(100),
-            user
-        );
+        ExecutionQuote memory quote = ExecutionQuote({
+            tag: "HIGH_SIMULATION",
+            executionCost: 50,
+            executionQuality: 1000,
+            mevRisk: 5,
+            latencyScore: 5
+        });
+
+        return abi.encode(quote);
     }
 
     function _estimateCost(
