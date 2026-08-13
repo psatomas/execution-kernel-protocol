@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "../../src/modules/ExecutionModuleBase.sol";
+import "../../src/types/ExecutionQuote.sol";
 
 contract MockLowScoreModule is ExecutionModuleBase {
 
@@ -26,7 +27,7 @@ contract MockLowScoreModule is ExecutionModuleBase {
     }
 
     function _simulate(
-        address user,
+        address,
         bytes calldata,
         bytes calldata
     )
@@ -35,12 +36,15 @@ contract MockLowScoreModule is ExecutionModuleBase {
         override
         returns (bytes memory)
     {
-        return abi.encode(
-            "LOW_SIMULATION",
-            uint256(100),
-            uint256(100),
-            user
-        );
+        ExecutionQuote memory quote = ExecutionQuote({
+            tag: "LOW_SIMULATION",
+            executionCost: 150,
+            executionQuality: 200,
+            mevRisk: 50,
+            latencyScore: 50
+        });
+
+        return abi.encode(quote);
     }
 
     function _estimateCost(

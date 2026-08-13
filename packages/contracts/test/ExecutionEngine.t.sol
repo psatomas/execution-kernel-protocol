@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 
 import "../src/core/ExecutionEngine.sol";
 import "../src/registry/ModuleRegistry.sol";
+import "../src/policy/ScorePolicy.sol";
 
 import "./mocks/MockHighScoreModule.sol";
 import "./mocks/MockLowScoreModule.sol";
@@ -14,6 +15,7 @@ contract ExecutionEngineTest is Test {
 
     ExecutionEngine engine;
     ModuleRegistry registry;
+    ScorePolicy scorePolicy;
 
     MockHighScoreModule highModule;
     MockLowScoreModule lowModule;
@@ -26,8 +28,12 @@ contract ExecutionEngineTest is Test {
 
         registry = new ModuleRegistry();
 
+        // Equal weights: score = quality - cost - mevRisk - latencyScore
+        scorePolicy = new ScorePolicy(1, 1, 1, 1);
+
         engine = new ExecutionEngine(
-            address(registry)
+            address(registry),
+            address(scorePolicy)
         );
 
         highModule = new MockHighScoreModule();
@@ -68,7 +74,7 @@ contract ExecutionEngineTest is Test {
             executionTag,
             "HIGH_EXECUTED"
         );
-        
+
     }
 
     function testEngineRevertsWhenNoModules()
@@ -108,7 +114,8 @@ contract ExecutionEngineTest is Test {
 
         ExecutionEngine localEngine =
             new ExecutionEngine(
-                address(localRegistry)
+                address(localRegistry),
+                address(scorePolicy)
             );
 
         unsupportedModule =
@@ -120,7 +127,7 @@ contract ExecutionEngineTest is Test {
         );
 
         vm.expectRevert(
-            bytes("No compatible module")
+            bytes("No compatible modules")
         );
 
         localEngine.executeIntent(
