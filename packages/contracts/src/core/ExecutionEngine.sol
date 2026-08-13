@@ -81,7 +81,7 @@ contract ExecutionEngine {
         view
         returns (address bestModule)
     {
-        uint256 bestScore;
+        int256 bestScore;
         bool initialized;
 
         for (uint256 i = 0; i < modules.length; i++) {
@@ -100,7 +100,7 @@ contract ExecutionEngine {
             ExecutionQuote memory quote =
                 abi.decode(sim, (ExecutionQuote));
 
-            uint256 score = scorePolicy.evaluate(quote);
+            int256 score = scorePolicy.evaluate(quote);
 
             if (!initialized || score > bestScore) {
                 bestScore = score;
