@@ -9,10 +9,11 @@ import "../src/registry/ModuleRegistry.sol";
 import "../src/policy/ScorePolicy.sol";
 import "../src/core/ExecutionEngine.sol";
 import "../src/modules/RouterModule.sol";
+import "../src/modules/MevProtectionModule.sol";
 
 /// @notice Deploys the execution kernel: IntentRegistry, ModuleRegistry,
-/// ScorePolicy and ExecutionEngine, then wires up RouterModule as the
-/// initial ROUTE module.
+/// ScorePolicy and ExecutionEngine, then wires up RouterModule and
+/// MevProtectionModule as competing ROUTE modules.
 ///
 /// Usage:
 ///   forge script script/Deploy.s.sol \
@@ -25,6 +26,9 @@ import "../src/modules/RouterModule.sol";
 /// liquidity sources default to none — its constructor has no setter to add
 /// sources after deployment, so pass real addresses via LIQUIDITY_SOURCES
 /// (comma-separated) before deploying anywhere beyond a local dry run.
+/// MevProtectionModule's relay premium defaults to 50 (see
+/// MEV_PROTECTION_PREMIUM) and, like RouterModule, has no post-deploy
+/// setter either.
 contract Deploy is Script {
 
     bytes32 constant ROUTE_INTENT = keccak256("ROUTE");
@@ -37,6 +41,8 @@ contract Deploy is Script {
 
         address[] memory liquiditySources =
             vm.envOr("LIQUIDITY_SOURCES", ",", new address[](0));
+
+        uint256 mevProtectionPremium = vm.envOr("MEV_PROTECTION_PREMIUM", uint256(50));
 
         vm.startBroadcast();
 
@@ -62,15 +68,24 @@ contract Deploy is Script {
             liquiditySources
         );
 
+        MevProtectionModule mevModule = new MevProtectionModule(
+            keccak256("MEV_PROTECTION"),
+            "MEV Protection Module",
+            1,
+            mevProtectionPremium
+        );
+
         intentRegistry.registerIntent(ROUTE_INTENT, "Route");
         moduleRegistry.registerModule(ROUTE_INTENT, address(routerModule));
+        moduleRegistry.registerModule(ROUTE_INTENT, address(mevModule));
 
         vm.stopBroadcast();
 
-        console2.log("IntentRegistry:  ", address(intentRegistry));
-        console2.log("ModuleRegistry:  ", address(moduleRegistry));
-        console2.log("ScorePolicy:     ", address(scorePolicy));
-        console2.log("ExecutionEngine: ", address(engine));
-        console2.log("RouterModule:    ", address(routerModule));
+        console2.log("IntentRegistry:      ", address(intentRegistry));
+        console2.log("ModuleRegistry:      ", address(moduleRegistry));
+        console2.log("ScorePolicy:         ", address(scorePolicy));
+        console2.log("ExecutionEngine:     ", address(engine));
+        console2.log("RouterModule:        ", address(routerModule));
+        console2.log("MevProtectionModule: ", address(mevModule));
     }
 }
