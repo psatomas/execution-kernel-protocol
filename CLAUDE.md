@@ -13,7 +13,8 @@ The repo is a monorepo with one implemented package (`packages/contracts`) and t
   - `src/registry/` — `ModuleRegistry.sol`, owner-gated intent-type → active-module-address mapping.
   - `src/types/` — `ExecutionQuote.sol`, the canonical struct modules return from `simulate()` and `ScorePolicy` scores.
   - `src/interfaces/` — `IExecutionModule.sol`, `IExecutionQuote.sol`.
-  - `src/access/`, `src/settlement/` — currently empty (`.gitkeep`); planned owner/role-based access control and settlement-routing logic per the root README's design.
+  - `src/access/` — currently empty (`.gitkeep`); planned as `ProtocolRoles.sol`, a single shared owner that `ModuleRegistry`/`IntentRegistry` will defer to (replacing their duplicated `owner`/`onlyOwner`), per the root README's design. Deliberately not multi-role RBAC for now.
+  - There is no `src/settlement/` — a standalone settlement layer was dropped from the design (see README). The winning module's `execute()` call is the on-chain settlement; there's no separate settlement step.
   - `test/` — Foundry tests plus `test/mocks/` (mock modules used to exercise `ExecutionEngine` selection logic).
 - **`packages/types`** — shared TypeScript definitions for intents, execution quotes, and modules, meant to mirror the on-chain types (`ExecutionQuote.sol` etc.) so `sdk` and `execution-node` share one vocabulary. Not yet populated.
 - **`packages/sdk`** — the developer integration layer (`intent/`, `execution/`, `registry/` subdirs). Wraps `packages/contracts` (ABIs/addresses, contract calls) behind a typed client (`intentBuilder`, `executionClient`, `moduleClient` per the README's intended layout) and consumes `packages/types` for shared shapes. Not yet populated.
@@ -30,8 +31,8 @@ The repo is a monorepo with one implemented package (`packages/contracts`) and t
 
 ## Development workflow
 
-- After editing anything under `packages/contracts/src/core/`, `packages/contracts/src/modules/`, or `packages/contracts/src/settlement/`, always run `forge test` (from `packages/contracts/`) before considering the task done.
-- Never commit changes touching `packages/contracts/src/core/`, `packages/contracts/src/access/`, or `packages/contracts/src/settlement/` without first showing and getting explicit review of the diff — these are the trust-boundary and settlement paths.
+- After editing anything under `packages/contracts/src/core/` or `packages/contracts/src/modules/`, always run `forge test` (from `packages/contracts/`) before considering the task done.
+- Never commit changes touching `packages/contracts/src/core/` or `packages/contracts/src/access/` without first showing and getting explicit review of the diff — these are the trust-boundary paths.
 
 ## Commit conventions
 
@@ -46,4 +47,4 @@ Conventional Commits, scoped to this repo's packages:
 - One logical change per commit — don't bundle unrelated edits across scopes.
 - Never use `--no-verify`.
 - Squash WIP commits before merging.
-- Ask before committing if the diff touches `settlement/` or `access/`, even if tests pass.
+- Ask before committing if the diff touches `access/`, even if tests pass.
