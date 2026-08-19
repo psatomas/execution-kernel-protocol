@@ -99,10 +99,15 @@ execution-kernel-protocol/
 │   │   │   │
 │   │   │   └── index.ts
 │   │
-│   ├── types/                             # Shared protocol definitions
-│   │   ├── intent.ts
-│   │   ├── execution.ts
-│   │   └── module.ts
+│   ├── types/                              # Shared protocol definitions (zero runtime deps)
+│   │   ├── src/
+│   │   │   ├── primitives.ts               # Address/Bytes32/Hex aliases
+│   │   │   ├── intent.ts                   # mirrors IntentRegistry.sol
+│   │   │   ├── execution.ts                # mirrors ExecutionQuote.sol, ScorePolicy.Weights
+│   │   │   ├── module.ts                   # mirrors IExecutionModule.sol, ModuleRegistry.sol
+│   │   │   └── index.ts
+│   │   ├── package.json
+│   │   └── tsconfig.json
 │   │
 │   └── config/
 │       ├── chains.ts
@@ -161,6 +166,9 @@ execution-kernel-protocol/
 │   ├── execution-graph.md
 │   └── threat-model.md
 │
+├── package.json                           # npm workspaces root
+├── tsconfig.base.json                     # shared strict TS config, extended per-package
+├── .gitignore
 └── README.md
 ```
 
