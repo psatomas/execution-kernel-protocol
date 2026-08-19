@@ -1,4 +1,4 @@
-import type { Address, Bytes32, Hex } from "./primitives.js";
+import type { Address, Bytes32, Hex } from "./primitives.ts";
 
 /**
  * Mirrors ExecutionQuote in packages/contracts/src/types/ExecutionQuote.sol.

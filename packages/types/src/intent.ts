@@ -1,4 +1,4 @@
-import type { Bytes32 } from "./primitives.js";
+import type { Bytes32 } from "./primitives.ts";
 
 /**
  * Mirrors IntentDefinition in packages/contracts/src/core/IntentRegistry.sol.
