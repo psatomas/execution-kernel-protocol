@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
 
+import "../src/access/ProtocolRoles.sol";
 import "../src/core/ExecutionEngine.sol";
 import "../src/core/IntentRegistry.sol";
 import "../src/registry/ModuleRegistry.sol";
@@ -15,6 +16,7 @@ import "./mocks/MockUnsupportedModule.sol";
 contract ExecutionEngineTest is Test {
 
     ExecutionEngine engine;
+    ProtocolRoles protocolRoles;
     IntentRegistry intentRegistry;
     ModuleRegistry registry;
     ScorePolicy scorePolicy;
@@ -28,13 +30,15 @@ contract ExecutionEngineTest is Test {
 
     function setUp() public {
 
-        intentRegistry = new IntentRegistry();
+        protocolRoles = new ProtocolRoles(address(this));
+
+        intentRegistry = new IntentRegistry(address(protocolRoles));
         intentRegistry.registerIntent(ROUTE_INTENT, "Route");
 
-        registry = new ModuleRegistry();
+        registry = new ModuleRegistry(address(protocolRoles));
 
         // Equal weights: score = quality - cost - mevRisk - latencyScore
-        scorePolicy = new ScorePolicy(1, 1, 1, 1);
+        scorePolicy = new ScorePolicy(address(protocolRoles), 1, 1, 1, 1);
 
         engine = new ExecutionEngine(
             address(intentRegistry),
@@ -150,11 +154,11 @@ contract ExecutionEngineTest is Test {
         public
     {
         IntentRegistry localIntentRegistry =
-            new IntentRegistry();
+            new IntentRegistry(address(protocolRoles));
         localIntentRegistry.registerIntent(ROUTE_INTENT, "Route");
 
         ModuleRegistry localRegistry =
-            new ModuleRegistry();
+            new ModuleRegistry(address(protocolRoles));
 
         ExecutionEngine localEngine =
             new ExecutionEngine(

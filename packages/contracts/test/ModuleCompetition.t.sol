@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
 
+import "../src/access/ProtocolRoles.sol";
 import "../src/core/ExecutionEngine.sol";
 import "../src/core/IntentRegistry.sol";
 import "../src/registry/ModuleRegistry.sol";
@@ -16,6 +17,7 @@ import "../src/modules/MevProtectionModule.sol";
 /// ExecutionEngine.t.sol.
 contract ModuleCompetitionTest is Test {
 
+    ProtocolRoles protocolRoles;
     IntentRegistry intentRegistry;
     ModuleRegistry moduleRegistry;
 
@@ -25,10 +27,12 @@ contract ModuleCompetitionTest is Test {
     bytes32 constant ROUTE_INTENT = keccak256("ROUTE");
 
     function setUp() public {
-        intentRegistry = new IntentRegistry();
+        protocolRoles = new ProtocolRoles(address(this));
+
+        intentRegistry = new IntentRegistry(address(protocolRoles));
         intentRegistry.registerIntent(ROUTE_INTENT, "Route");
 
-        moduleRegistry = new ModuleRegistry();
+        moduleRegistry = new ModuleRegistry(address(protocolRoles));
 
         // RouterModule quote (2 liquidity sources):
         //   executionCost = 200, executionQuality = 1000, mevRisk = 10, latencyScore = 10
@@ -67,7 +71,7 @@ contract ModuleCompetitionTest is Test {
     /// @notice Under equal weights, RouterModule's higher quality and lower
     /// cost outweigh its higher MEV risk: 1000-200-10-10=780 vs 900-150-1-20=729.
     function testRouterWinsUnderEqualWeights() public {
-        ScorePolicy policy = new ScorePolicy(1, 1, 1, 1);
+        ScorePolicy policy = new ScorePolicy(address(protocolRoles), 1, 1, 1, 1);
         ExecutionEngine engine = _deployEngine(policy);
 
         bytes memory result = engine.executeIntent(ROUTE_INTENT, abi.encode("swap"));
@@ -81,7 +85,7 @@ contract ModuleCompetitionTest is Test {
     /// @notice Once MEV risk is weighted heavily, MevProtectionModule's much
     /// lower mevRisk flips the outcome: 1000-200-500-10=290 vs 900-150-50-20=680.
     function testMevProtectionWinsWhenMevWeightDominates() public {
-        ScorePolicy policy = new ScorePolicy(1, 1, 50, 1);
+        ScorePolicy policy = new ScorePolicy(address(protocolRoles), 1, 1, 50, 1);
         ExecutionEngine engine = _deployEngine(policy);
 
         bytes memory result = engine.executeIntent(ROUTE_INTENT, abi.encode("swap"));

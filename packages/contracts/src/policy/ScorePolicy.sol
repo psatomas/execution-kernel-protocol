@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "../types/ExecutionQuote.sol";
+import "../access/ProtocolRoles.sol";
 
 /// @notice Pluggable scoring policy for execution selection
 /// @dev This allows MEV-aware, chain-specific, or governance-driven scoring upgrades
@@ -15,19 +16,55 @@ contract ScorePolicy {
     }
 
     Weights public weights;
+    ProtocolRoles public immutable protocolRoles;
+
+    event WeightsUpdated(
+        uint256 qualityWeight,
+        uint256 costWeight,
+        uint256 mevWeight,
+        uint256 latencyWeight
+    );
+
+    modifier onlyOwner() {
+        require(protocolRoles.isOwner(msg.sender), "Not owner");
+        _;
+    }
 
     constructor(
+        address _protocolRoles,
         uint256 _qualityWeight,
         uint256 _costWeight,
         uint256 _mevWeight,
         uint256 _latencyWeight
     ) {
+        protocolRoles = ProtocolRoles(_protocolRoles);
         weights = Weights({
             qualityWeight: _qualityWeight,
             costWeight: _costWeight,
             mevWeight: _mevWeight,
             latencyWeight: _latencyWeight
         });
+    }
+
+    /// @notice Updates the scoring weights. Takes effect immediately for the
+    /// next executeIntent() call — no timelock/delay.
+    function updateWeights(
+        uint256 _qualityWeight,
+        uint256 _costWeight,
+        uint256 _mevWeight,
+        uint256 _latencyWeight
+    )
+        external
+        onlyOwner
+    {
+        weights = Weights({
+            qualityWeight: _qualityWeight,
+            costWeight: _costWeight,
+            mevWeight: _mevWeight,
+            latencyWeight: _latencyWeight
+        });
+
+        emit WeightsUpdated(_qualityWeight, _costWeight, _mevWeight, _latencyWeight);
     }
 
     /// @notice Converts ExecutionQuote into a comparable score
