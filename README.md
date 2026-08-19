@@ -85,19 +85,24 @@ execution-kernel-protocol/
 │   │   ├── foundry.toml
 │   │   └── remappings.txt
 │   │
-│   ├── sdk/                               # Developer integration layer
+│   ├── sdk/                               # Developer integration layer (wraps viem)
 │   │   ├── src/
+│   │   │   ├── abi/                       # hand-authored `as const` ABIs, one per contract
 │   │   │   ├── intent/
 │   │   │   │   ├── intentBuilder.ts
 │   │   │   │   └── types.ts
 │   │   │   │
 │   │   │   ├── execution/
-│   │   │   │   ├── executionClient.ts
-│   │   │   │   └── moduleClient.ts
+│   │   │   │   ├── executionClient.ts     # wraps ExecutionEngine
+│   │   │   │   └── moduleClient.ts        # wraps IExecutionModule (any module address)
 │   │   │   │
-│   │   │   ├── registry/
+│   │   │   ├── registry/                  # intentRegistry/moduleRegistry/scorePolicy/protocolRoles clients
 │   │   │   │
-│   │   │   └── index.ts
+│   │   │   └── index.ts                   # createExecutionKernelClient(...) bundles all of the above
+│   │   ├── examples/
+│   │   │   └── quickstart.ts              # runnable end-to-end example against a local anvil deployment
+│   │   ├── package.json
+│   │   └── tsconfig.json
 │   │
 │   ├── types/                              # Shared protocol definitions (zero runtime deps)
 │   │   ├── src/

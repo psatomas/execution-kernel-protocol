@@ -1,4 +1,4 @@
-import type { Address, Bytes32 } from "./primitives.js";
+import type { Address, Bytes32 } from "./primitives.ts";
 
 /**
  * Mirrors the on-chain identity fields exposed by IExecutionModule.sol
