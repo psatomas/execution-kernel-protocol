@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import "forge-std/Script.sol";
 import "forge-std/console2.sol";
 
+import "../src/access/ProtocolRoles.sol";
 import "../src/core/IntentRegistry.sol";
 import "../src/registry/ModuleRegistry.sol";
 import "../src/policy/ScorePolicy.sol";
@@ -11,9 +12,9 @@ import "../src/core/ExecutionEngine.sol";
 import "../src/modules/RouterModule.sol";
 import "../src/modules/MevProtectionModule.sol";
 
-/// @notice Deploys the execution kernel: IntentRegistry, ModuleRegistry,
-/// ScorePolicy and ExecutionEngine, then wires up RouterModule and
-/// MevProtectionModule as competing ROUTE modules.
+/// @notice Deploys the execution kernel: ProtocolRoles, IntentRegistry,
+/// ModuleRegistry, ScorePolicy and ExecutionEngine, then wires up
+/// RouterModule and MevProtectionModule as competing ROUTE modules.
 ///
 /// Usage:
 ///   forge script script/Deploy.s.sol \
@@ -21,8 +22,11 @@ import "../src/modules/MevProtectionModule.sol";
 ///     --private-key $PRIVATE_KEY \
 ///     --broadcast
 ///
+/// ProtocolRoles' owner defaults to the deploying/broadcasting address;
+/// override via PROTOCOL_OWNER to hand ownership to a multisig immediately.
 /// ScorePolicy weights are configurable via env vars (default: 1 each,
-/// i.e. quality/cost/mevRisk/latencyScore weighted equally). RouterModule's
+/// i.e. quality/cost/mevRisk/latencyScore weighted equally) and can be
+/// updated later by the ProtocolRoles owner via updateWeights(). RouterModule's
 /// liquidity sources default to none — its constructor has no setter to add
 /// sources after deployment, so pass real addresses via LIQUIDITY_SOURCES
 /// (comma-separated) before deploying anywhere beyond a local dry run.
@@ -44,11 +48,20 @@ contract Deploy is Script {
 
         uint256 mevProtectionPremium = vm.envOr("MEV_PROTECTION_PREMIUM", uint256(50));
 
+        address protocolOwner = vm.envOr("PROTOCOL_OWNER", address(0));
+
         vm.startBroadcast();
 
-        IntentRegistry intentRegistry = new IntentRegistry();
-        ModuleRegistry moduleRegistry = new ModuleRegistry();
+        if (protocolOwner == address(0)) {
+            protocolOwner = msg.sender;
+        }
+
+        ProtocolRoles protocolRoles = new ProtocolRoles(protocolOwner);
+
+        IntentRegistry intentRegistry = new IntentRegistry(address(protocolRoles));
+        ModuleRegistry moduleRegistry = new ModuleRegistry(address(protocolRoles));
         ScorePolicy scorePolicy = new ScorePolicy(
+            address(protocolRoles),
             qualityWeight,
             costWeight,
             mevWeight,
@@ -81,6 +94,7 @@ contract Deploy is Script {
 
         vm.stopBroadcast();
 
+        console2.log("ProtocolRoles:       ", address(protocolRoles));
         console2.log("IntentRegistry:      ", address(intentRegistry));
         console2.log("ModuleRegistry:      ", address(moduleRegistry));
         console2.log("ScorePolicy:         ", address(scorePolicy));

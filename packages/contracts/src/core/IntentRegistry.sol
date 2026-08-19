@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import "../access/ProtocolRoles.sol";
+
 contract IntentRegistry {
 
     struct IntentDefinition {
@@ -16,18 +18,18 @@ contract IntentRegistry {
     /// @notice list of all intent types
     bytes32[] public intentList;
 
-    address public owner;
+    ProtocolRoles public immutable protocolRoles;
 
     event IntentRegistered(bytes32 indexed intentType, string name);
     event IntentStatusUpdated(bytes32 indexed intentType, bool active);
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "Not owner");
+        require(protocolRoles.isOwner(msg.sender), "Not owner");
         _;
     }
 
-    constructor() {
-        owner = msg.sender;
+    constructor(address _protocolRoles) {
+        protocolRoles = ProtocolRoles(_protocolRoles);
     }
 
     // -----------------------------

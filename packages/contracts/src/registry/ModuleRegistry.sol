@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "../interfaces/IExecutionModule.sol";
+import "../access/ProtocolRoles.sol";
 
 contract ModuleRegistry {
 
@@ -11,19 +12,19 @@ contract ModuleRegistry {
     /// @notice module => active status
     mapping(address => bool) public isModuleActive;
 
-    address public owner;
+    ProtocolRoles public immutable protocolRoles;
 
     event ModuleRegistered(bytes32 indexed intentType, address module);
     event ModuleRemoved(bytes32 indexed intentType, address module);
     event ModuleStatusUpdated(address module, bool active);
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "Not owner");
+        require(protocolRoles.isOwner(msg.sender), "Not owner");
         _;
     }
 
-    constructor() {
-        owner = msg.sender;
+    constructor(address _protocolRoles) {
+        protocolRoles = ProtocolRoles(_protocolRoles);
     }
 
     // -----------------------------
