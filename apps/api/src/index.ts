@@ -6,6 +6,7 @@ import { createKernelService } from "./services/kernelService.ts";
 import { intentsRoutes } from "./routes/intentsRoutes.ts";
 import { modulesRoutes } from "./routes/modulesRoutes.ts";
 import { metricsRoutes } from "./routes/metricsRoutes.ts";
+import { executionsRoutes } from "./routes/executionsRoutes.ts";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -35,6 +36,7 @@ export function buildServer(): FastifyInstance {
   app.register(intentsRoutes, { prefix: "/intents" });
   app.register(modulesRoutes, { prefix: "/modules" });
   app.register(metricsRoutes, { prefix: "/metrics" });
+  app.register(executionsRoutes, { prefix: "/executions" });
 
   return app;
 }

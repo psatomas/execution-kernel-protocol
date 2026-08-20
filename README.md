@@ -170,27 +170,35 @@ execution-kernel-protocol/
 │   │   │   ├── controllers/
 │   │   │   │   ├── intentsController.ts
 │   │   │   │   ├── modulesController.ts   # includes /predict — off-chain solve(), no gas spent
-│   │   │   │   └── metricsController.ts   # wraps apps/indexer
+│   │   │   │   ├── metricsController.ts   # wraps apps/indexer (aggregate metrics)
+│   │   │   │   └── executionsController.ts # raw per-tx history, most-recent-first
 │   │   │   ├── routes/
 │   │   │   │   ├── intentsRoutes.ts
 │   │   │   │   ├── modulesRoutes.ts
-│   │   │   │   └── metricsRoutes.ts
+│   │   │   │   ├── metricsRoutes.ts
+│   │   │   │   └── executionsRoutes.ts
 │   │   │   ├── utils/
 │   │   │   │   └── json.ts                # bigint/Map -> JSON-safe, needed for every response
 │   │   │   └── index.ts                   # buildServer(); no execute/submit route — see CLAUDE.md
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   │
-│   └── frontend/                          # Intent-based UI layer (Next.js App Router + wagmi/viem)
+│   └── frontend/                          # Protocol console (Next.js App Router + wagmi/viem)
 │       ├── src/
 │       │   ├── app/                       # App Router, not pages/ — see CLAUDE.md
 │       │   │   ├── layout.tsx
 │       │   │   ├── page.tsx
-│       │   │   └── providers.tsx          # "use client" boundary: WagmiProvider + QueryClientProvider
+│       │   │   ├── providers.tsx          # "use client" boundary: WagmiProvider + QueryClientProvider
+│       │   │   └── globals.css            # design tokens: --bg/--surface/--border/--ink/--accent/status trio
 │       │   ├── components/
-│       │   │   ├── ConnectWallet.tsx
-│       │   │   └── IntentExplorer.tsx     # the dashboard: intents -> modules -> predict -> execute -> metrics
-│       │   ├── hooks/                     # useKernelClient, useIntents, useModules, usePrediction, useExecutionMetrics
+│       │   │   ├── layout/AppHeader.tsx   # always-visible network identity + wallet
+│       │   │   ├── wallet/ConnectWallet.tsx
+│       │   │   ├── execution/             # ExecutionConsole.tsx (primary surface), CandidateModuleRow.tsx
+│       │   │   ├── protocol/OverviewStats.tsx
+│       │   │   ├── metrics/RecentExecutions.tsx
+│       │   │   └── ui/                    # Badge, Panel, StatTile — shared primitives, few call sites each
+│       │   ├── hooks/                     # useKernelClient, useIntents, useModules, usePrediction,
+│       │   │                              # useExecutionMetrics, useRecentExecutions
 │       │   ├── services/
 │       │   │   └── kernelClient.ts        # pure wiring: wagmi's viem clients -> sdk's ExecutionKernelClient
 │       │   └── lib/

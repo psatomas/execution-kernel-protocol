@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
+/*
+ * Token system for the protocol console. Previously this file only defined
+ * --background/--foreground (consumed by <body> alone) while every
+ * component used hardcoded literal Tailwind colors (bg-black, text-gray-500,
+ * border-gray-300, ...) -- in dark mode the page background flipped but
+ * every component stayed tuned for a light ground. Every color below is a
+ * token, and every component consumes tokens, not literals, in both themes.
+ *
+ * Semantic status colors (--success/--warning/--danger) are kept distinct
+ * from --accent: the accent marks primary actions/selection, status colors
+ * mark protocol state (confirmed/pending/failed), and conflating the two
+ * would make a merely-selected row look like a completed one.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --bg: #f6f7f7;
+  --surface: #ffffff;
+  --surface-2: #eef0f1;
+  --border: #dde1e3;
+  --ink: #13171a;
+  --muted: #5b6570;
+  --faint: #89929c;
+  --accent: #3457d5;
+  --accent-ink: #ffffff;
+  --accent-soft: #e8edfc;
+  --accent-soft-border: #c3d0f7;
+  --success: #157f45;
+  --success-soft: #e4f5eb;
+  --warning: #9a6b0c;
+  --warning-soft: #faf0d9;
+  --danger: #b3261e;
+  --danger-soft: #fbe9e7;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #0a0c0e;
+    --surface: #121518;
+    --surface-2: #191d21;
+    --border: #262b2f;
+    --ink: #e7eaec;
+    --muted: #939ba5;
+    --faint: #5b636b;
+    --accent: #7691f5;
+    --accent-ink: #0a0f1f;
+    --accent-soft: #182236;
+    --accent-soft-border: #2c3c5e;
+    --success: #3fcf80;
+    --success-soft: #112a1c;
+    --warning: #e0b04a;
+    --warning-soft: #2b2313;
+    --danger: #f0685f;
+    --danger-soft: #2c1614;
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-border: var(--accent-soft-border);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
