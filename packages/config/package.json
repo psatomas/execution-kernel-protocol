@@ -1,5 +1,5 @@
 {
-  "name": "@execution-kernel-protocol/execution-node",
+  "name": "@execution-kernel-protocol/config",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,13 +11,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@execution-kernel-protocol/sdk": "*",
     "@execution-kernel-protocol/types": "*",
     "viem": "^2.21.0"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
-    "@types/node": "^22.0.0",
-    "@execution-kernel-protocol/config": "*"
+    "typescript": "^5.7.0"
   }
 }

@@ -9,45 +9,35 @@
  *   2. From packages/contracts, `forge create` (in this order) ProtocolRoles,
  *      IntentRegistry, ModuleRegistry, ScorePolicy, ExecutionEngine,
  *      RouterModule, MevProtectionModule — see script/Deploy.s.sol for the
- *      exact constructor args each one takes.
- *   3. Fill in the deployed addresses below.
- *   4. `node packages/sdk/examples/quickstart.ts` from the repo root.
+ *      exact constructor args each one takes. Deploying in this exact order
+ *      from a fresh anvil reproduces the addresses hardcoded in
+ *      packages/config/src/addresses.ts (localAnvilAddresses) -- update
+ *      that file if you ever change the order or add a contract.
+ *   3. `node packages/sdk/examples/quickstart.ts` from the repo root.
  */
 import { createPublicClient, createWalletClient, http, decodeAbiParameters } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { createExecutionKernelClient, intentType, buildIntent } from "../src/index.ts";
+import { localAnvil, localAnvilAddresses, localAnvilModules, ROUTE_INTENT_TYPE } from "@execution-kernel-protocol/config";
 
 // anvil's default account #0 — well-known local test key, never use in production.
 const PK = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-const RPC = "http://127.0.0.1:8545";
 
-const addresses = {
-  protocolRoles: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-  intentRegistry: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-  moduleRegistry: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-  scorePolicy: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-  executionEngine: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-} as const;
-
-const routerModule = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707" as const;
-const mevModule = "0x0165878A594ca255338adfa4d48449f69242Eb8F" as const;
+const { routerModule, mevProtectionModule: mevModule } = localAnvilModules;
 
 const account = privateKeyToAccount(PK);
-const chain = {
-  id: 31337,
-  name: "anvil",
-  nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
-  rpcUrls: { default: { http: [RPC] } },
-} as const;
+const publicClient = createPublicClient({ chain: localAnvil, transport: http() });
+const walletClient = createWalletClient({ chain: localAnvil, transport: http(), account });
 
-const publicClient = createPublicClient({ chain, transport: http(RPC) });
-const walletClient = createWalletClient({ chain, transport: http(RPC), account });
-
-const kernel = createExecutionKernelClient({ addresses, publicClient, walletClient });
+const kernel = createExecutionKernelClient({ addresses: localAnvilAddresses, publicClient, walletClient });
 
 async function main() {
+  // Computed independently by both sdk's intentBuilder and config's
+  // ROUTE_INTENT_TYPE constant -- confirms they actually agree, not just
+  // that each one individually "looks right".
   const ROUTE = intentType("ROUTE");
   console.log("intentType('ROUTE') =", ROUTE);
+  if (ROUTE !== ROUTE_INTENT_TYPE) throw new Error("sdk's intentType('ROUTE') disagrees with config's ROUTE_INTENT_TYPE");
 
   // 1. Register the intent + both modules, entirely through the SDK.
   await kernel.intentRegistry.registerIntent(ROUTE, "Route");
