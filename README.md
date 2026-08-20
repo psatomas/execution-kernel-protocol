@@ -143,13 +143,21 @@ execution-kernel-protocol/
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   │
-│   ├── indexer/                           # Execution observability layer
+│   ├── indexer/                            # Execution observability layer
 │   │   ├── src/
 │   │   │   ├── listeners/
+│   │   │   │   └── eventListener.ts       # generic backfill/watch over any (address, abi, eventName)
 │   │   │   ├── processors/
+│   │   │   │   └── kernelEventProcessor.ts # backfills all 5 kernel contracts' events into the store
 │   │   │   ├── metrics/
+│   │   │   │   └── executionMetrics.ts    # totalExecutions/executionsByModule/moduleWinRate
 │   │   │   ├── db/
-│   │   │   └── index.ts
+│   │   │   │   └── memoryStore.ts         # in-memory store — swap for a real DB when persistence matters
+│   │   │   └── index.ts                   # createIndexer(...) backfills into a fresh store
+│   │   ├── examples/
+│   │   │   └── quickstart.ts              # runnable end-to-end example against a local anvil deployment
+│   │   ├── package.json
+│   │   └── tsconfig.json
 │   │
 │   ├── api/                               # Integration API layer
 │   │   ├── src/
