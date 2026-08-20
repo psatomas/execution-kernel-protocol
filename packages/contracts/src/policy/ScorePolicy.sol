@@ -77,14 +77,51 @@ contract ScorePolicy {
         view
         returns (int256 score)
     {
+        return _evaluate(q);
+    }
+
+    /// @notice Same as evaluate(), but decodes the quote from a module's raw
+    /// simulate() return bytes itself. ExecutionEngine calls this (wrapped
+    /// in try/catch) instead of decoding separately and calling evaluate() --
+    /// abi.decode() can't be try/caught directly since it isn't an external
+    /// call, so folding the decode into this external function is what lets
+    /// a malformed quote be skipped instead of reverting the whole
+    /// selection loop.
+    function evaluateQuoteBytes(bytes calldata rawQuote)
+        external
+        view
+        returns (int256 score)
+    {
+        ExecutionQuote memory q = abi.decode(rawQuote, (ExecutionQuote));
+        return _evaluate(q);
+    }
+
+    function _evaluate(ExecutionQuote memory q)
+        internal
+        view
+        returns (int256 score)
+    {
         // Weighted scoring model
         // quality is positive
         // others are penalties
 
         score =
-            (int256(q.executionQuality) * int256(weights.qualityWeight))
-            - (int256(q.executionCost) * int256(weights.costWeight))
-            - (int256(q.mevRisk) * int256(weights.mevWeight))
-            - (int256(q.latencyScore) * int256(weights.latencyWeight));
+            (_toInt256(q.executionQuality) * _toInt256(weights.qualityWeight))
+            - (_toInt256(q.executionCost) * _toInt256(weights.costWeight))
+            - (_toInt256(q.mevRisk) * _toInt256(weights.mevWeight))
+            - (_toInt256(q.latencyScore) * _toInt256(weights.latencyWeight));
+    }
+
+    /// @dev Solidity 0.8's overflow checks cover arithmetic (+, -, *), not
+    ///      same-width int/uint casts -- int256(x) for x > type(int256).max
+    ///      silently reinterprets the bit pattern as negative instead of
+    ///      reverting. A module returning a uint256 this large (not
+    ///      necessarily malicious -- just larger than anyone expected a
+    ///      cost/quality/risk/latency figure to ever be) would otherwise
+    ///      have its quote's sign silently flipped. Reject it explicitly
+    ///      instead.
+    function _toInt256(uint256 value) internal pure returns (int256) {
+        require(value <= uint256(type(int256).max), "Value exceeds int256 range");
+        return int256(value);
     }
 }

@@ -98,20 +98,38 @@ contract ExecutionEngine {
         for (uint256 i = 0; i < modules.length; i++) {
             IExecutionModule module = IExecutionModule(modules[i]);
 
-            if (!module.supportsIntent(intentType)) {
+            // A broken module -- reverts, or returns a quote ScorePolicy
+            // can't make sense of -- is skipped, not allowed to block
+            // every other candidate registered for this intent type. Each
+            // external call gets its own try/catch: abi.decode() isn't an
+            // external call, so it can't be try/caught directly, which is
+            // why decoding happens inside ScorePolicy.evaluateQuoteBytes()
+            // instead of here.
+
+            bool isSupported;
+            try module.supportsIntent(intentType) returns (bool result) {
+                isSupported = result;
+            } catch {
                 continue;
             }
 
-            bytes memory sim = module.simulate(
-                user,
-                intentData,
-                abi.encode(intentType)
-            );
+            if (!isSupported) {
+                continue;
+            }
 
-            ExecutionQuote memory quote =
-                abi.decode(sim, (ExecutionQuote));
+            bytes memory sim;
+            try module.simulate(user, intentData, abi.encode(intentType)) returns (bytes memory result) {
+                sim = result;
+            } catch {
+                continue;
+            }
 
-            int256 score = scorePolicy.evaluate(quote);
+            int256 score;
+            try scorePolicy.evaluateQuoteBytes(sim) returns (int256 result) {
+                score = result;
+            } catch {
+                continue;
+            }
 
             if (!initialized || score > bestScore) {
                 bestScore = score;
