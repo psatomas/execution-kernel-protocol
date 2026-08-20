@@ -4,7 +4,7 @@ Composable execution infrastructure for Web3 intents. Intents are resolved by an
 
 ## Project overview
 
-The repo is a monorepo. `packages/contracts`, `packages/types`, `packages/sdk`, and `apps/execution-node` are implemented (see below). `packages/config` and `apps/indexer`/`apps/api`/`apps/frontend` are still scaffolded stubs containing only `.gitkeep` placeholders — treat those as intentional stubs, not missing work, unless a task asks you to build them out.
+The repo is a monorepo. `packages/contracts`, `packages/types`, `packages/sdk`, `apps/execution-node`, and `apps/indexer` are implemented (see below). `packages/config` and `apps/api`/`apps/frontend` don't exist on disk at all yet — they're named in the README's repository-structure diagram as intended future layout, not actual `.gitkeep` stubs. Don't assume they exist; check before referencing a path under them.
 
 - **`packages/contracts`** (Foundry/Solidity) — the on-chain execution core.
   - `src/core/` — `ExecutionEngine.sol` (entrypoint: `executeIntent`, module selection loop) and `IntentRegistry.sol` (owner-gated intent-type registration).
@@ -21,7 +21,9 @@ The repo is a monorepo. `packages/contracts`, `packages/types`, `packages/sdk`, 
 - **`packages/sdk`** — a `viem`-based typed client (`intent/`, `execution/`, `registry/`, `abi/` subdirs). `createExecutionKernelClient(...)` bundles one client per contract (`intentRegistry`, `moduleRegistry`, `scorePolicy`, `execution`, `module`); `intentBuilder.intentType(label)` hashes a label exactly like Solidity's `keccak256("label")`. Every `onlyOwner`/mutating call simulates via `publicClient.simulateContract` before submitting. `examples/quickstart.ts` is a runnable, verified end-to-end example against a local `anvil` deployment — read it before writing new sdk code.
 - **`apps/execution-node`** — the off-chain pipeline consuming `packages/sdk`: `engine/intentProcessor.ts` (raw request → `Intent`), `engine/executionGraphBuilder.ts` (gas-free off-chain preview of what `ExecutionEngine` would currently select — reproduces the on-chain scoring exactly via read calls, doesn't reimplement it), `solvers/solver.ts` (one generic solver, not per-module — every module is scored identically, so a `routerSolver`/`mevSolver` split would be redundant boilerplate today), `execution/executor.ts` (submission). `index.ts`'s `runIntent(...)` ties process → solve → submit together. "Execution graph" here means the current one-round competing-modules model, not chained multi-module execution (still just a future direction — see README).
 
-**Dependency direction:** `packages/types` → `packages/contracts` (mirrors on-chain types) → `packages/sdk` (wraps contract bindings) → `apps/execution-node` (consumes the SDK to orchestrate execution). Never point a dependency the other way (e.g. `contracts` must not import from `sdk`).
+- **`apps/indexer`** — off-chain observability, also consuming `packages/sdk`. `listeners/eventListener.ts` is generic over `(address, abi, eventName)` (backfill via `getContractEvents` + a live `watchContractEvent` variant) rather than one listener per contract — every contract's events decode the same way through viem. `processors/kernelEventProcessor.ts` backfills all 5 kernel contracts' events into `db/memoryStore.ts` (deliberately in-memory — no real DB dependency until persistence across restarts actually matters). `metrics/executionMetrics.ts` derives `totalExecutions`/`executionsByModule`/`moduleWinRate` from the store. `index.ts`'s `createIndexer(...)` backfills into a fresh store and returns it with the metrics bound.
+
+**Dependency direction:** `packages/types` → `packages/contracts` (mirrors on-chain types) → `packages/sdk` (wraps contract bindings) → `apps/execution-node`/`apps/indexer` (both consume the SDK: one to orchestrate execution, the other to observe it). Never point a dependency the other way (e.g. `contracts` must not import from `sdk`).
 
 ## Scan / audit scope rules
 
