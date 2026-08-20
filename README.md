@@ -114,10 +114,14 @@ execution-kernel-protocol/
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   │
-│   └── config/
-│       ├── chains.ts
-│       ├── addresses.ts
-│       └── constants.ts
+│   └── config/                             # local-anvil chain/address config (no testnet yet)
+│       ├── src/
+│       │   ├── chains.ts                   # localAnvil: Chain
+│       │   ├── addresses.ts                # localAnvilAddresses, localAnvilModules
+│       │   ├── constants.ts                # ROUTE_INTENT_TYPE
+│       │   └── index.ts
+│       ├── package.json
+│       └── tsconfig.json
 │
 ├── apps/
 │

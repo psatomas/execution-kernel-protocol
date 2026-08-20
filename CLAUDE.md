@@ -4,7 +4,7 @@ Composable execution infrastructure for Web3 intents. Intents are resolved by an
 
 ## Project overview
 
-The repo is a monorepo. `packages/contracts`, `packages/types`, `packages/sdk`, `apps/execution-node`, and `apps/indexer` are implemented (see below). `packages/config` and `apps/api`/`apps/frontend` don't exist on disk at all yet — they're named in the README's repository-structure diagram as intended future layout, not actual `.gitkeep` stubs. Don't assume they exist; check before referencing a path under them.
+The repo is a monorepo. `packages/contracts`, `packages/types`, `packages/sdk`, `packages/config`, `apps/execution-node`, and `apps/indexer` are implemented (see below). `apps/api`/`apps/frontend` don't exist on disk at all yet — they're named in the README's repository-structure diagram as intended future layout, not actual `.gitkeep` stubs. Don't assume they exist; check before referencing a path under them.
 
 - **`packages/contracts`** (Foundry/Solidity) — the on-chain execution core.
   - `src/core/` — `ExecutionEngine.sol` (entrypoint: `executeIntent`, module selection loop) and `IntentRegistry.sol` (owner-gated intent-type registration).
@@ -22,8 +22,9 @@ The repo is a monorepo. `packages/contracts`, `packages/types`, `packages/sdk`, 
 - **`apps/execution-node`** — the off-chain pipeline consuming `packages/sdk`: `engine/intentProcessor.ts` (raw request → `Intent`), `engine/executionGraphBuilder.ts` (gas-free off-chain preview of what `ExecutionEngine` would currently select — reproduces the on-chain scoring exactly via read calls, doesn't reimplement it), `solvers/solver.ts` (one generic solver, not per-module — every module is scored identically, so a `routerSolver`/`mevSolver` split would be redundant boilerplate today), `execution/executor.ts` (submission). `index.ts`'s `runIntent(...)` ties process → solve → submit together. "Execution graph" here means the current one-round competing-modules model, not chained multi-module execution (still just a future direction — see README).
 
 - **`apps/indexer`** — off-chain observability, also consuming `packages/sdk`. `listeners/eventListener.ts` is generic over `(address, abi, eventName)` (backfill via `getContractEvents` + a live `watchContractEvent` variant) rather than one listener per contract — every contract's events decode the same way through viem. `processors/kernelEventProcessor.ts` backfills all 5 kernel contracts' events into `db/memoryStore.ts` (deliberately in-memory — no real DB dependency until persistence across restarts actually matters). `metrics/executionMetrics.ts` derives `totalExecutions`/`executionsByModule`/`moduleWinRate` from the store. `index.ts`'s `createIndexer(...)` backfills into a fresh store and returns it with the metrics bound.
+- **`packages/config`** — `localAnvil` (a `viem` `Chain`), `localAnvilAddresses`/`localAnvilModules` (the deterministic addresses that fall out of deploying `ProtocolRoles → IntentRegistry → ModuleRegistry → ScorePolicy → ExecutionEngine → RouterModule → MevProtectionModule`, in that order, from anvil's default account #0 on a fresh chain — not a persistent deployment), and `ROUTE_INTENT_TYPE`. Deliberately does not depend on `packages/sdk` (defines its own structurally-equivalent address shape instead) since `sdk`'s own `examples/quickstart.ts` depends on `config` — a `config → sdk → config` cycle would exist otherwise. No real testnet/mainnet chain entry exists yet; add one only when an actual deployment happens.
 
-**Dependency direction:** `packages/types` → `packages/contracts` (mirrors on-chain types) → `packages/sdk` (wraps contract bindings) → `apps/execution-node`/`apps/indexer` (both consume the SDK: one to orchestrate execution, the other to observe it). Never point a dependency the other way (e.g. `contracts` must not import from `sdk`).
+**Dependency direction:** `packages/types` → `packages/contracts` (mirrors on-chain types) → `packages/sdk` (wraps contract bindings) → `apps/execution-node`/`apps/indexer` (both consume the SDK: one to orchestrate execution, the other to observe it). `packages/config` sits alongside `sdk` (depends only on `types`, not `sdk`) and is consumed by all three packages' example scripts. Never point a dependency the other way (e.g. `contracts` must not import from `sdk`, and `config` must not import from `sdk`).
 
 ## Scan / audit scope rules
 
@@ -36,7 +37,7 @@ The repo is a monorepo. `packages/contracts`, `packages/types`, `packages/sdk`, 
 ## Development workflow
 
 - After editing anything under `packages/contracts/src/core/` or `packages/contracts/src/modules/`, always run `forge test` (from `packages/contracts/`) before considering the task done.
-- After editing anything under `packages/types/`, `packages/sdk/`, or `apps/execution-node/`, run `npm run typecheck` (from the repo root) before considering the task done. None of these three have a build step — they're consumed as source, so a clean typecheck is the bar, not a successful build.
+- After editing anything under `packages/types/`, `packages/sdk/`, `packages/config/`, `apps/execution-node/`, or `apps/indexer/`, run `npm run typecheck` (from the repo root) before considering the task done. None of these five have a build step — they're consumed as source, so a clean typecheck is the bar, not a successful build.
 - Never commit changes touching `packages/contracts/src/core/` or `packages/contracts/src/access/` without first showing and getting explicit review of the diff — these are the trust-boundary paths.
 
 ## Commit conventions
