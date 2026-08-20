@@ -8,3 +8,6 @@ import type { Bytes32 } from "@execution-kernel-protocol/types";
  * imported from sdk, so config has no dependency on sdk).
  */
 export const ROUTE_INTENT_TYPE: Bytes32 = keccak256(toBytes("ROUTE"));
+
+/** apps/api's default local dev address (see apps/api/src/index.ts's PORT default). */
+export const LOCAL_API_URL = "http://localhost:4000";

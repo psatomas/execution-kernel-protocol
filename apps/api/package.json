@@ -15,6 +15,7 @@
     "@execution-kernel-protocol/config": "*",
     "@execution-kernel-protocol/types": "*",
     "fastify": "^5.0.0",
+    "@fastify/cors": "^10.0.0",
     "viem": "^2.21.0"
   },
   "devDependencies": {

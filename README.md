@@ -189,12 +189,15 @@ execution-kernel-protocol/
 │       │   │   └── providers.tsx          # "use client" boundary: WagmiProvider + QueryClientProvider
 │       │   ├── components/
 │       │   │   ├── ConnectWallet.tsx
-│       │   │   └── IntentExplorer.tsx     # the dashboard: intents -> modules -> predict -> execute
-│       │   ├── hooks/                     # useKernelClient, useIntents, useModules, usePrediction
+│       │   │   └── IntentExplorer.tsx     # the dashboard: intents -> modules -> predict -> execute -> metrics
+│       │   ├── hooks/                     # useKernelClient, useIntents, useModules, usePrediction, useExecutionMetrics
 │       │   ├── services/
 │       │   │   └── kernelClient.ts        # pure wiring: wagmi's viem clients -> sdk's ExecutionKernelClient
 │       │   └── lib/
-│       │       └── wagmiConfig.ts         # localAnvil only — no testnet/mainnet chain yet
+│       │       └── wagmiConfig.ts         # localAnvil only, ssr: true — see CLAUDE.md
+│       ├── e2e/
+│       │   └── full-flow.spec.ts          # Playwright: the full flow end to end, real browser — see CLAUDE.md
+│       ├── playwright.config.ts
 │       ├── package.json
 │       └── tsconfig.json
 │
