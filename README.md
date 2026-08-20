@@ -163,12 +163,23 @@ execution-kernel-protocol/
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   │
-│   ├── api/                               # Integration API layer
+│   ├── api/                                # Integration API layer (Fastify, read-only)
 │   │   ├── src/
-│   │   │   ├── routes/
 │   │   │   ├── services/
+│   │   │   │   └── kernelService.ts       # one shared, read-only ExecutionKernelClient
 │   │   │   ├── controllers/
-│   │   │   └── index.ts
+│   │   │   │   ├── intentsController.ts
+│   │   │   │   ├── modulesController.ts   # includes /predict — off-chain solve(), no gas spent
+│   │   │   │   └── metricsController.ts   # wraps apps/indexer
+│   │   │   ├── routes/
+│   │   │   │   ├── intentsRoutes.ts
+│   │   │   │   ├── modulesRoutes.ts
+│   │   │   │   └── metricsRoutes.ts
+│   │   │   ├── utils/
+│   │   │   │   └── json.ts                # bigint/Map -> JSON-safe, needed for every response
+│   │   │   └── index.ts                   # buildServer(); no execute/submit route — see CLAUDE.md
+│   │   ├── package.json
+│   │   └── tsconfig.json
 │   │
 │   └── frontend/                          # Intent-based UI layer
 │       ├── src/
