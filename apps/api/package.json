@@ -1,0 +1,24 @@
+{
+  "name": "@execution-kernel-protocol/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "start": "node src/index.ts"
+  },
+  "dependencies": {
+    "@execution-kernel-protocol/sdk": "*",
+    "@execution-kernel-protocol/execution-node": "*",
+    "@execution-kernel-protocol/indexer": "*",
+    "@execution-kernel-protocol/config": "*",
+    "@execution-kernel-protocol/types": "*",
+    "fastify": "^5.0.0",
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0"
+  }
+}
