@@ -121,20 +121,27 @@ execution-kernel-protocol/
 │
 ├── apps/
 │
-│   ├── execution-node/                    # Off-chain execution engine
+│   ├── execution-node/                    # Off-chain execution engine (consumes sdk)
 │   │   ├── src/
 │   │   │   ├── engine/
-│   │   │   │   ├── intentProcessor.ts
-│   │   │   │   └── executionGraphBuilder.ts
+│   │   │   │   ├── intentProcessor.ts     # raw request -> Intent (labels intentType)
+│   │   │   │   └── executionGraphBuilder.ts # off-chain, gas-free preview of what
+│   │   │   │                                # ExecutionEngine would select right now
 │   │   │   │
 │   │   │   ├── solvers/
-│   │   │   │   ├── routerSolver.ts
-│   │   │   │   └── mevSolver.ts
+│   │   │   │   └── solver.ts              # one generic solver, not per-module — every
+│   │   │   │                                # module is scored the same generic way, so
+│   │   │   │                                # a routerSolver/mevSolver split would just
+│   │   │   │                                # be duplicated boilerplate today
 │   │   │   │
 │   │   │   ├── execution/
-│   │   │   │   └── executor.ts
+│   │   │   │   └── executor.ts            # submits via sdk's executionClient
 │   │   │   │
-│   │   │   └── index.ts
+│   │   │   └── index.ts                   # runIntent(...) ties the pipeline together
+│   │   ├── examples/
+│   │   │   └── quickstart.ts              # runnable end-to-end example against a local anvil deployment
+│   │   ├── package.json
+│   │   └── tsconfig.json
 │   │
 │   ├── indexer/                           # Execution observability layer
 │   │   ├── src/

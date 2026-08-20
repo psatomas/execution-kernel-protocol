@@ -4,21 +4,22 @@ Composable execution infrastructure for Web3 intents. Intents are resolved by an
 
 ## Project overview
 
-The repo is a monorepo with one implemented package (`packages/contracts`) and three scaffolded packages/apps that currently contain only `.gitkeep` placeholders. Treat the latter as intentional stubs, not missing work, unless a task asks you to build them out.
+The repo is a monorepo. `packages/contracts`, `packages/types`, `packages/sdk`, and `apps/execution-node` are implemented (see below). `packages/config` and `apps/indexer`/`apps/api`/`apps/frontend` are still scaffolded stubs containing only `.gitkeep` placeholders — treat those as intentional stubs, not missing work, unless a task asks you to build them out.
 
-- **`packages/contracts`** (Foundry/Solidity, the only package with real code) — the on-chain execution core.
+- **`packages/contracts`** (Foundry/Solidity) — the on-chain execution core.
   - `src/core/` — `ExecutionEngine.sol` (entrypoint: `executeIntent`, module selection loop) and `IntentRegistry.sol` (owner-gated intent-type registration).
-  - `src/modules/` — `ExecutionModuleBase.sol` (abstract base implementing `IExecutionModule`) and `RouterModule.sol` (example/reference module).
-  - `src/policy/` — `ScorePolicy.sol`, the pluggable weighted-scoring contract `ExecutionEngine` calls to rank module simulation results.
+  - `src/modules/` — `ExecutionModuleBase.sol` (abstract base implementing `IExecutionModule`), `RouterModule.sol` and `MevProtectionModule.sol` (two competing modules registered for the same `ROUTE` intent type, proving out real module-selection behavior beyond test mocks).
+  - `src/policy/` — `ScorePolicy.sol`, the pluggable weighted-scoring contract `ExecutionEngine` calls to rank module simulation results. Scores are signed (`int256`) — a module whose penalties outweigh its quality legitimately scores negative rather than reverting. Weights are governable post-deploy via the owner-gated `updateWeights()`, effective immediately.
   - `src/registry/` — `ModuleRegistry.sol`, owner-gated intent-type → active-module-address mapping.
   - `src/types/` — `ExecutionQuote.sol`, the canonical struct modules return from `simulate()` and `ScorePolicy` scores.
   - `src/interfaces/` — `IExecutionModule.sol`, `IExecutionQuote.sol`.
-  - `src/access/` — currently empty (`.gitkeep`); planned as `ProtocolRoles.sol`, a single shared owner that `ModuleRegistry`/`IntentRegistry` will defer to (replacing their duplicated `owner`/`onlyOwner`), per the root README's design. Deliberately not multi-role RBAC for now.
+  - `src/access/` — `ProtocolRoles.sol`, the single shared owner (`owner`/`transferOwnership`/`isOwner`) that `ModuleRegistry`, `IntentRegistry`, and `ScorePolicy` all defer to instead of each holding their own `owner` state. Deliberately not multi-role RBAC for now.
   - There is no `src/settlement/` — a standalone settlement layer was dropped from the design (see README). The winning module's `execute()` call is the on-chain settlement; there's no separate settlement step.
-  - `test/` — Foundry tests plus `test/mocks/` (mock modules used to exercise `ExecutionEngine` selection logic).
-- **`packages/types`** — shared TypeScript definitions for intents, execution quotes, and modules, meant to mirror the on-chain types (`ExecutionQuote.sol` etc.) so `sdk` and `execution-node` share one vocabulary. Not yet populated.
-- **`packages/sdk`** — the developer integration layer (`intent/`, `execution/`, `registry/` subdirs). Wraps `packages/contracts` (ABIs/addresses, contract calls) behind a typed client (`intentBuilder`, `executionClient`, `moduleClient` per the README's intended layout) and consumes `packages/types` for shared shapes. Not yet populated.
-- **`apps/execution-node`** — the off-chain execution engine (`engine/`, `execution/`, `solvers/` subdirs: intent processing, execution-graph building, per-module solvers). Consumes `packages/sdk` to build and submit execution graphs against the on-chain kernel, and `packages/types` for shared definitions. Not yet populated.
+  - `test/` — Foundry tests (`ExecutionEngine.t.sol`, `ModuleCompetition.t.sol` — real competing modules, not mocks, exercising `ScorePolicy` weighting — and `Governance.t.sol` — `ProtocolRoles`/`ScorePolicy` governance) plus `test/mocks/` (mock modules used in `ExecutionEngine.t.sol`).
+  - `script/Deploy.s.sol` — deploys and wires up the whole kernel (`ProtocolRoles` → registries/`ScorePolicy` → `ExecutionEngine` → both modules).
+- **`packages/types`** — zero-runtime-dependency TypeScript mirrors of the on-chain types: `ExecutionQuote`, `ScorePolicy.Weights`, module/intent registration shapes and events. `uint256` fields are `bigint`; the `ScorePolicy.evaluate()` score is signed (`ExecutionScore`). Consumed as TS source (no build step) — see `sdk`/`execution-node` below.
+- **`packages/sdk`** — a `viem`-based typed client (`intent/`, `execution/`, `registry/`, `abi/` subdirs). `createExecutionKernelClient(...)` bundles one client per contract (`intentRegistry`, `moduleRegistry`, `scorePolicy`, `execution`, `module`); `intentBuilder.intentType(label)` hashes a label exactly like Solidity's `keccak256("label")`. Every `onlyOwner`/mutating call simulates via `publicClient.simulateContract` before submitting. `examples/quickstart.ts` is a runnable, verified end-to-end example against a local `anvil` deployment — read it before writing new sdk code.
+- **`apps/execution-node`** — the off-chain pipeline consuming `packages/sdk`: `engine/intentProcessor.ts` (raw request → `Intent`), `engine/executionGraphBuilder.ts` (gas-free off-chain preview of what `ExecutionEngine` would currently select — reproduces the on-chain scoring exactly via read calls, doesn't reimplement it), `solvers/solver.ts` (one generic solver, not per-module — every module is scored identically, so a `routerSolver`/`mevSolver` split would be redundant boilerplate today), `execution/executor.ts` (submission). `index.ts`'s `runIntent(...)` ties process → solve → submit together. "Execution graph" here means the current one-round competing-modules model, not chained multi-module execution (still just a future direction — see README).
 
 **Dependency direction:** `packages/types` → `packages/contracts` (mirrors on-chain types) → `packages/sdk` (wraps contract bindings) → `apps/execution-node` (consumes the SDK to orchestrate execution). Never point a dependency the other way (e.g. `contracts` must not import from `sdk`).
 
@@ -27,11 +28,13 @@ The repo is a monorepo with one implemented package (`packages/contracts`) and t
 - **Priority for security review**, in order: `packages/contracts/src/core`, `packages/contracts/src/modules`, `packages/contracts/src/policy`, `packages/contracts/src/access`. These hold the intent-execution and module-selection trust boundary.
 - Do **not** read `packages/contracts/test/mocks` or `docs/` unless the task explicitly asks for them — mocks are test fixtures, not production logic, and `docs/` is currently just a placeholder.
 - `packages/contracts/out/` and `packages/contracts/cache/` are Foundry build artifacts, gitignored — never read or grep them; if they're missing, that's expected, not an error.
+- `node_modules/` anywhere in the repo is gitignored and never worth reading/grepping — same rule as `out/`/`cache/`.
 - Before any analysis of the contracts, run `forge build` (from `packages/contracts/`) first to surface compile errors before reasoning about the code.
 
 ## Development workflow
 
 - After editing anything under `packages/contracts/src/core/` or `packages/contracts/src/modules/`, always run `forge test` (from `packages/contracts/`) before considering the task done.
+- After editing anything under `packages/types/`, `packages/sdk/`, or `apps/execution-node/`, run `npm run typecheck` (from the repo root) before considering the task done. None of these three have a build step — they're consumed as source, so a clean typecheck is the bar, not a successful build.
 - Never commit changes touching `packages/contracts/src/core/` or `packages/contracts/src/access/` without first showing and getting explicit review of the diff — these are the trust-boundary paths.
 
 ## Commit conventions
