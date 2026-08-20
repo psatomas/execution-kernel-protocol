@@ -159,8 +159,14 @@ test("connect wallet -> read registry -> construct intent -> simulate -> execute
   await intentButton.click();
   await expect(page.getByText(ROUTE_INTENT_TYPE, { exact: false })).toBeVisible();
 
-  // 4. simulate -- off-chain, gas-free (execution-node's solve(), via usePrediction)
-  await expect(page.getByText(/Predicted winner/i)).toBeVisible({ timeout: 15_000 });
+  // 4. simulate -- off-chain, gas-free (execution-node's solve(), via
+  // usePrediction). Strengthened, not just carried over: the redesigned
+  // console shows every candidate's real score, not just the winner's tag,
+  // so assert the competition itself is visible -- both real modules
+  // present with a score each, and exactly one marked "Selected".
+  await expect(page.getByText("Router Module")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("MEV Protection Module")).toBeVisible();
+  await expect(page.getByText("Selected", { exact: true })).toBeVisible();
 
   // 5/6/7. wallet confirmation (auto-approved by the injected provider,
   // in place of a human clicking "Confirm") -> executeIntent() -> submitted
@@ -201,4 +207,11 @@ test("connect wallet -> read registry -> construct intent -> simulate -> execute
   await expect(page.getByText(new RegExp(`Total executions: ${before.totalExecutions + 1}`))).toBeVisible({
     timeout: 15_000,
   });
+
+  // Also: the new Recent executions panel (apps/api's /executions,
+  // wrapping apps/indexer's raw per-transaction records, previously never
+  // exposed) shows this exact transaction -- a second, independent path
+  // from indexer through api to the frontend for the same event.
+  const truncatedHash = `${hash.slice(0, 8)}...${hash.slice(-6)}`;
+  await expect(page.getByText(truncatedHash)).toBeVisible({ timeout: 15_000 });
 });
