@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel superseded runs on the same PR/branch so only the latest commit's
+# checks matter — avoids racing/stale results on force-pushes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Node dependencies (npm workspaces: all packages/apps in one install).
+      - name: Install Node dependencies
+        run: npm ci
+
+      # Foundry (forge/cast/anvil) itself.
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      # forge-std is gitignored (packages/contracts/lib/), not a git
+      # submodule — restore the exact version pinned in foundry.lock.
+      - name: Install forge-std
+        working-directory: packages/contracts
+        run: forge install foundry-rs/forge-std@v1.16.1
+
+      - name: Run Solidity test suite
+        working-directory: packages/contracts
+        run: forge test -vvv
+
+      # Workspace-wide: types, sdk, config, execution-node, indexer, api,
+      # frontend all run their own `typecheck` script via `--workspaces`.
+      - name: Run TypeScript typecheck
+        run: npm run typecheck
