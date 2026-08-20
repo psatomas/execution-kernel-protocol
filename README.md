@@ -181,14 +181,22 @@ execution-kernel-protocol/
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   │
-│   └── frontend/                          # Intent-based UI layer
+│   └── frontend/                          # Intent-based UI layer (Next.js App Router + wagmi/viem)
 │       ├── src/
-│       │   ├── pages/
+│       │   ├── app/                       # App Router, not pages/ — see CLAUDE.md
+│       │   │   ├── layout.tsx
+│       │   │   ├── page.tsx
+│       │   │   └── providers.tsx          # "use client" boundary: WagmiProvider + QueryClientProvider
 │       │   ├── components/
-│       │   ├── hooks/
-│       │   ├── state/
+│       │   │   ├── ConnectWallet.tsx
+│       │   │   └── IntentExplorer.tsx     # the dashboard: intents -> modules -> predict -> execute
+│       │   ├── hooks/                     # useKernelClient, useIntents, useModules, usePrediction
 │       │   ├── services/
+│       │   │   └── kernelClient.ts        # pure wiring: wagmi's viem clients -> sdk's ExecutionKernelClient
 │       │   └── lib/
+│       │       └── wagmiConfig.ts         # localAnvil only — no testnet/mainnet chain yet
+│       ├── package.json
+│       └── tsconfig.json
 │
 ├── scripts/
 │   ├── deploy.ts
