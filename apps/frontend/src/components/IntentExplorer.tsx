@@ -1,21 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 import type { Bytes32 } from "@execution-kernel-protocol/types";
 import { useKernelClient } from "@/hooks/useKernelClient";
 import { useIntents } from "@/hooks/useIntents";
 import { useModules } from "@/hooks/useModules";
 import { usePrediction } from "@/hooks/usePrediction";
+import { useExecutionMetrics } from "@/hooks/useExecutionMetrics";
 
 export function IntentExplorer() {
   const kernel = useKernelClient();
+  const publicClient = usePublicClient();
   const { address } = useAccount();
   const [selected, setSelected] = useState<Bytes32>();
 
   const intentsQuery = useIntents(kernel);
   const modulesQuery = useModules(kernel, selected);
   const predictionQuery = usePrediction(kernel, selected, address);
+  const metricsQuery = useExecutionMetrics(selected);
 
   const [executing, setExecuting] = useState(false);
   const [executionResult, setExecutionResult] = useState<string>();
@@ -35,6 +38,12 @@ export function IntentExplorer() {
       );
       setExecutionResult(hash);
       predictionQuery.refetch();
+
+      // The indexer needs the transaction actually mined before its
+      // backfill will see the new event -- wait for the receipt, then pull
+      // fresh metrics from apps/api (chain event -> indexer -> api -> here).
+      await publicClient?.waitForTransactionReceipt({ hash });
+      metricsQuery.refetch();
     } catch (err) {
       setExecutionError((err as Error).message);
     } finally {
@@ -121,6 +130,31 @@ export function IntentExplorer() {
             <p className="font-mono text-sm text-green-700">tx: {executionResult}</p>
           )}
           {executionError && <p className="text-sm text-red-700">{executionError}</p>}
+        </section>
+      )}
+
+      {selected && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-lg font-semibold">Execution metrics (via apps/api)</h2>
+          <p className="text-xs text-gray-500">
+            Not read from the chain directly -- this is chain event → indexer → api → here.
+          </p>
+          {metricsQuery.isLoading && <p className="text-sm text-gray-500">Loading...</p>}
+          {metricsQuery.isError && (
+            <p className="text-sm text-red-700">{(metricsQuery.error as Error).message}</p>
+          )}
+          {metricsQuery.data && (
+            <div className="rounded border border-gray-200 px-3 py-2">
+              <div className="font-medium">Total executions: {metricsQuery.data.totalExecutions}</div>
+              <ul className="mt-1 flex flex-col gap-1">
+                {Object.entries(metricsQuery.data.executionsByModule).map(([module, count]) => (
+                  <li key={module} className="font-mono text-xs text-gray-500">
+                    {module}: {count}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
       )}
     </div>
