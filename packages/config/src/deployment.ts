@@ -26,3 +26,20 @@ export const localAnvilDeployment: KernelDeploymentConfig = {
   chain: localAnvil,
   addresses: localAnvilAddresses,
 };
+
+/**
+ * Every known kernel deployment, keyed by chain id -- lets a consumer that
+ * only knows "which chain is this wallet/request on" (e.g. apps/frontend's
+ * useKernelClient, reading wagmi's connected chain id) resolve the right
+ * KernelDeploymentConfig without hardcoding one specific deployment. A
+ * chain id with no entry means no kernel is known to be deployed there --
+ * callers should treat that as "unsupported", not silently fall back to a
+ * different chain's addresses.
+ *
+ * sepolia's entry is added here once its real deployment addresses exist
+ * (see docs/architecture/testnet-deployment.md) -- deliberately not
+ * populated with placeholder/guessed addresses ahead of that.
+ */
+export const deploymentsByChainId: Partial<Record<number, KernelDeploymentConfig>> = {
+  [localAnvil.id]: localAnvilDeployment,
+};
