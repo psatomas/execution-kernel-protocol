@@ -1,11 +1,17 @@
 import { createConfig, http } from "wagmi";
 import { injected } from "wagmi/connectors";
-import { localAnvil } from "@execution-kernel-protocol/config";
+import { localAnvil, sepolia } from "@execution-kernel-protocol/config";
 
 /**
- * Only chain configured is the local anvil dev chain packages/config
- * defines — no testnet/mainnet exists yet (see README). Connect a browser
- * wallet pointed at a local anvil node (chain id 31337) to use this app.
+ * Local anvil (dev) plus Sepolia (the one real testnet this repo targets --
+ * see docs/architecture/testnet-deployment.md) -- connect a browser wallet
+ * pointed at either to use this app. Not a general multi-chain config: just
+ * these two, matching the two KernelDeploymentConfigs packages/config
+ * actually knows about (see deploymentsByChainId).
+ *
+ * Sepolia's transport uses a specific public RPC (verified reachable) rather
+ * than viem's bundled default -- an explicit, known-good endpoint rather
+ * than an implicit one.
  *
  * ssr: true is required here, not optional — without it wagmi's hooks
  * report "disconnected, no connectors" on the server (no wallet exists
@@ -15,10 +21,11 @@ import { localAnvil } from "@execution-kernel-protocol/config";
  * this, not just an injected test provider.
  */
 export const wagmiConfig = createConfig({
-  chains: [localAnvil],
+  chains: [localAnvil, sepolia],
   connectors: [injected()],
   transports: {
     [localAnvil.id]: http(),
+    [sepolia.id]: http("https://ethereum-sepolia-rpc.publicnode.com"),
   },
   ssr: true,
 });
