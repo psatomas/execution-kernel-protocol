@@ -1,6 +1,10 @@
 {
   "permissions": {
     "deny": [
+      "Edit(packages/contracts/src/settlement/**)",
+      "Write(packages/contracts/src/settlement/**)",
+      "Edit(packages/contracts/src/access/**)",
+      "Write(packages/contracts/src/access/**)",
       "Bash(forge script*)"
     ]
   }
