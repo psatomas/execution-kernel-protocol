@@ -183,7 +183,7 @@ execution-kernel-protocol/
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   │
-│   └── frontend/                          # Protocol console (Next.js App Router + wagmi/viem)
+│   ├── frontend/                          # Protocol console (Next.js App Router + wagmi/viem)
 │       ├── src/
 │       │   ├── app/                       # App Router, not pages/ — see CLAUDE.md
 │       │   │   ├── layout.tsx
@@ -207,6 +207,25 @@ execution-kernel-protocol/
 │       │   └── full-flow.spec.ts          # Playwright: the full flow end to end, real browser — see CLAUDE.md
 │       ├── playwright.config.ts
 │       ├── package.json
+│       └── tsconfig.json
+│
+│   └── landing/                            # exekpro.com — public marketing site (Next.js App Router)
+│       ├── src/
+│       │   ├── app/
+│       │   │   ├── layout.tsx              # metadata: title/description/OG/canonical
+│       │   │   ├── page.tsx                # composes every section, in order
+│       │   │   ├── globals.css             # single deliberate dark theme, not dual-theme like the console
+│       │   │   ├── icon.svg                # favicon (Next's file-convention icon)
+│       │   │   └── opengraph-image.tsx     # generated OG image (next/og ImageResponse)
+│       │   ├── components/
+│       │   │   ├── layout/                 # SiteHeader, SiteFooter, Wordmark
+│       │   │   ├── sections/               # Hero, Problem, HowItWorks, ExecutionQuoteSection,
+│       │   │   │                           # ModularExecution, B2BDeployments, DeveloperExperience,
+│       │   │   │                           # Validation, SecurityPrinciples, RoadmapStatus, FinalCTA
+│       │   │   └── ui/                     # Container, SectionHeading, Pill, FlowDiagram, StatTile, CTALink
+│       │   └── lib/
+│       │       └── links.ts                # GITHUB_URL/CONSOLE_URL/DOCS_URL — one place to update when real
+│       ├── package.json                    # deliberately no wagmi/viem/sdk deps — pure static marketing content
 │       └── tsconfig.json
 │
 ├── scripts/
