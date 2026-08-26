@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { GITHUB_URL } from "@/lib/links";
-import { Wordmark } from "./Wordmark";
 
 const NAV_LINKS = [
   { href: "#how-it-works", label: "How it works" },
@@ -14,9 +13,10 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg/85 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4 sm:px-8">
-        <Link href="#top" className="flex shrink-0 items-center gap-2 text-lg text-ink">
-          <Image src="/mark.png" alt="" aria-hidden="true" width={26} height={26} priority />
-          <Wordmark />
+        <Link href="#top" className="flex shrink-0 items-center">
+          {/* The wordmark's own "O" is the brand mark -- one combined image,
+              not mark + separate text (that would show the mark twice). */}
+          <Image src="/wordmark.png" alt="ExekPro" width={110} height={26} priority className="h-[26px] w-auto" />
         </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
