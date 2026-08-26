@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { GITHUB_URL } from "@/lib/links";
 import { Wordmark } from "./Wordmark";
 
@@ -13,7 +14,8 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg/85 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4 sm:px-8">
-        <Link href="#top" className="shrink-0 text-lg text-ink">
+        <Link href="#top" className="flex shrink-0 items-center gap-2 text-lg text-ink">
+          <Image src="/mark.png" alt="" aria-hidden="true" width={26} height={26} priority />
           <Wordmark />
         </Link>
 
