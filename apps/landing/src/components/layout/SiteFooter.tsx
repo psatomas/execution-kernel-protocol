@@ -1,13 +1,13 @@
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { GITHUB_URL, CONSOLE_URL, DOCS_URL } from "@/lib/links";
-import { Wordmark } from "./Wordmark";
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-border py-12">
       <Container className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex flex-col gap-2">
-          <Wordmark className="text-base text-ink" />
+        <div className="flex flex-col gap-3">
+          <Image src="/wordmark.png" alt="ExekPro" width={110} height={26} className="h-[22px] w-auto" />
           <p className="max-w-sm text-sm text-muted">Execution infrastructure for intent-driven applications.</p>
         </div>
 
