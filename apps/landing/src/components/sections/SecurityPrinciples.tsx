@@ -4,7 +4,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 const PRINCIPLES = [
   {
     name: "Non-custodial",
-    desc: "The end user's own wallet signs every execution. ExekPro provides the execution infrastructure an application uses to evaluate and execute intents — it never holds a private key on anyone's behalf.",
+    desc: "The end user's own wallet signs every execution. ExeKPro provides the execution infrastructure an application uses to evaluate and execute intents — it never holds a private key on anyone's behalf.",
   },
   {
     name: "Deterministic selection",

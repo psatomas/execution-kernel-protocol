@@ -16,7 +16,7 @@ export function SiteHeader() {
         <Link href="#top" className="flex shrink-0 items-center">
           {/* The wordmark's own "O" is the brand mark -- one combined image,
               not mark + separate text (that would show the mark twice). */}
-          <Image src="/wordmark.png" alt="ExekPro" width={399} height={94} priority className="h-[26px] w-auto" />
+          <Image src="/wordmark.png" alt="ExeKPro" width={399} height={94} priority className="h-[26px] w-auto" />
         </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">

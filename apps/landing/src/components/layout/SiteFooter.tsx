@@ -7,7 +7,7 @@ export function SiteFooter() {
     <footer className="border-t border-border py-12">
       <Container className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-col items-start gap-2">
-          <Image src="/wordmark.png" alt="ExekPro" width={399} height={94} className="h-[22px] w-auto" />
+          <Image src="/wordmark.png" alt="ExeKPro" width={399} height={94} className="h-[22px] w-auto" />
           <span className="font-mono text-xs uppercase tracking-[0.1em] text-faint">Execution Kernel Protocol</span>
           <p className="max-w-sm pt-1 text-sm text-muted">Execution infrastructure for intent-driven applications.</p>
         </div>

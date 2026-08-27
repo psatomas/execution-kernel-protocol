@@ -13,19 +13,19 @@ const geistMono = Geist_Mono({
 });
 
 const SITE_URL = "https://exekpro.com";
-const TITLE = "ExekPro — Execution infrastructure for intent-driven applications";
+const TITLE = "ExeKPro — Execution infrastructure for intent-driven applications";
 const DESCRIPTION =
-  "ExekPro (Execution Kernel Protocol) is a modular execution kernel: applications express an intent, compatible modules are simulated and scored against an explicit policy, and the best-compatible one executes through the user's own wallet.";
+  "ExeKPro (Execution Kernel Protocol) is a modular execution kernel: applications express an intent, compatible modules are simulated and scored against an explicit policy, and the best-compatible one executes through the user's own wallet.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: TITLE, template: "%s — ExekPro" },
+  title: { default: TITLE, template: "%s — ExeKPro" },
   description: DESCRIPTION,
   alternates: { canonical: SITE_URL },
   openGraph: {
     type: "website",
     url: SITE_URL,
-    siteName: "ExekPro",
+    siteName: "ExeKPro",
     title: TITLE,
     description: DESCRIPTION,
     // Image itself comes from app/opengraph-image.tsx (Next's file
