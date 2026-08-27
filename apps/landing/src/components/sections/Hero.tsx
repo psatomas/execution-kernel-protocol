@@ -19,7 +19,7 @@ export function Hero() {
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
             <CTALink href={CONSOLE_URL} variant="primary" external>
-              Explore the Protocol
+              Launch Console
             </CTALink>
             <CTALink href={GITHUB_URL} variant="secondary" external>
               View on GitHub

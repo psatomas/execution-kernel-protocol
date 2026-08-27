@@ -15,7 +15,7 @@ const LAYERS = [
 
 export function DeveloperExperience() {
   return (
-    <section className="border-b border-border py-20 sm:py-28">
+    <section id="developer-experience" className="border-b border-border py-20 sm:py-28">
       <Container className="flex flex-col gap-14">
         <SectionHeading
           eyebrow="Developer experience"
