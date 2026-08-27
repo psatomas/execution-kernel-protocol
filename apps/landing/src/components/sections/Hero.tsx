@@ -8,7 +8,7 @@ export function Hero() {
     <section id="top" className="border-b border-border pb-16 pt-20 sm:pt-28">
       <Container className="flex flex-col gap-10">
         <div className="flex flex-col gap-6">
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-accent">Execution infrastructure</span>
+          <span className="font-mono text-xs uppercase tracking-[0.14em] text-accent">ExekPro — Execution Kernel Protocol</span>
           <h1 className="text-balance text-4xl font-semibold leading-[1.08] text-ink sm:text-5xl lg:text-6xl">
             Execution infrastructure for intent-driven applications.
           </h1>
