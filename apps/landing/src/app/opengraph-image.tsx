@@ -1,21 +1,20 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { WORDMARK_PNG_BASE64 } from "./wordmark-base64";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// The real wordmark asset (see public/wordmark.png), not hand-drawn text --
-// satori (next/og's renderer) can't read the filesystem itself, so it's
-// embedded as a data URI read at request time.
-function wordmarkDataUri(): string {
-  const bytes = readFileSync(join(process.cwd(), "public", "wordmark.png"));
-  return `data:image/png;base64,${bytes.toString("base64")}`;
-}
+// The real wordmark asset (see public/wordmark.png), embedded as a
+// build-time base64 literal (wordmark-base64.ts) rather than read via
+// fs.readFileSync at request time -- that works on Node/Vercel, but not
+// on Cloudflare Workers (confirmed with a real `wrangler dev` run: the
+// OpenNext bundle doesn't carry public/ into the deployed worker's
+// filesystem the way a Node server does, so the read fails with ENOENT
+// at runtime there). A plain string constant works identically on every
+// host.
+const wordmark = `data:image/png;base64,${WORDMARK_PNG_BASE64}`;
 
 export default function Image() {
-  const wordmark = wordmarkDataUri();
-
   return new ImageResponse(
     (
       <div

@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "exekpro-landing",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  }
+  // No KV/R2 binding, no WORKER_SELF_REFERENCE service binding: this app
+  // has zero dynamic data and zero ISR/revalidation (every page is fully
+  // static marketing content, see CLAUDE.md) -- the incremental-cache
+  // storage those bindings back is for pages that revalidate, which none
+  // of this app's routes do. Add them (see @opennextjs/cloudflare's docs)
+  // only if a route here ever actually needs ISR.
+}
