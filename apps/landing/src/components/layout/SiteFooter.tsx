@@ -7,7 +7,10 @@ export function SiteFooter() {
     <footer className="border-t border-border py-12">
       <Container className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-col gap-3">
-          <Image src="/wordmark.png" alt="ExekPro" width={110} height={26} className="h-[22px] w-auto" />
+          <div className="flex items-center gap-2.5">
+            <Image src="/icon.png" alt="" aria-hidden="true" width={26} height={26} />
+            <span className="font-mono text-base font-semibold tracking-[0.06em] text-accent">EXEKPRO</span>
+          </div>
           <p className="max-w-sm text-sm text-muted">Execution infrastructure for intent-driven applications.</p>
         </div>
 
