@@ -8,13 +8,12 @@
 export const GITHUB_URL = "https://github.com/psatomas/execution-kernel-protocol";
 
 /**
- * The protocol console (apps/frontend) has no public hosted deployment yet
- * -- it currently only runs against a local anvil chain (see that app's own
- * README/CLAUDE.md). This intentionally points at the console's source
- * rather than fabricating a live URL; update it to a real deployed console
- * URL once one exists.
+ * The protocol console (apps/frontend), deployed as its own Cloudflare
+ * Worker at the root of exekpro.com -- this site (apps/landing) is the
+ * "/about" surface of that same domain. See the repo root CLAUDE.md's URL
+ * architecture section.
  */
-export const CONSOLE_URL = `${GITHUB_URL}/tree/main/apps/frontend`;
+export const CONSOLE_URL = "https://exekpro.com/";
 
 /** Points at the root README, which documents the architecture in full. */
 export const DOCS_URL = `${GITHUB_URL}#readme`;

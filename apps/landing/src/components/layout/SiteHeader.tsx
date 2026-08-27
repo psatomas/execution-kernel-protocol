@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { CTALink } from "@/components/ui/CTALink";
 import { GITHUB_URL, CONSOLE_URL } from "@/lib/links";
+import { BASE_PATH } from "@/lib/basePath";
 
 const NAV_LINKS = [
   { href: "#how-it-works", label: "Protocol" },
@@ -15,8 +16,10 @@ export function SiteHeader() {
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4 sm:px-8">
         <Link href="#top" className="flex shrink-0 items-center">
           {/* The wordmark's own "O" is the brand mark -- one combined image,
-              not mark + separate text (that would show the mark twice). */}
-          <Image src="/wordmark.png" alt="ExeKPro" width={399} height={94} priority className="h-[26px] w-auto" />
+              not mark + separate text (that would show the mark twice).
+              next/image `src` is NOT auto-prefixed by basePath (unlike
+              next/link) -- see src/lib/basePath.ts. */}
+          <Image src={`${BASE_PATH}/wordmark.png`} alt="ExeKPro" width={399} height={94} priority className="h-[26px] w-auto" />
         </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">

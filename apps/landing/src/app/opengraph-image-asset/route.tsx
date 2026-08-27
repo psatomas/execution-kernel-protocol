@@ -1,6 +1,15 @@
 import { ImageResponse } from "next/og";
-import { WORDMARK_PNG_BASE64 } from "./wordmark-base64";
+import { WORDMARK_PNG_BASE64 } from "../wordmark-base64";
 
+// A plain Route Handler, not Next's `opengraph-image` file-convention --
+// deliberately. That convention auto-injects an `og:image`/`twitter:image`
+// meta tag, but (confirmed by building this app with `basePath` set)
+// constructs that tag's absolute URL without applying basePath, unlike
+// every other route in this app. Serving the same generated image from an
+// ordinary route sidesteps that bug entirely: an ordinary route's own path
+// gets basePath applied like any other page, and its metadata tag is
+// authored explicitly in app/layout.tsx (openGraph.images/twitter.images)
+// instead of relying on auto-detection.
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -14,7 +23,7 @@ export const contentType = "image/png";
 // host.
 const wordmark = `data:image/png;base64,${WORDMARK_PNG_BASE64}`;
 
-export default function Image() {
+export async function GET() {
   return new ImageResponse(
     (
       <div
