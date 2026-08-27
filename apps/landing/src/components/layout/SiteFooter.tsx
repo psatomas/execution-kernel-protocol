@@ -6,8 +6,8 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-border py-12">
       <Container className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex flex-col gap-3">
-          <Image src="/wordmark.png" alt="ExekPro" width={110} height={26} className="h-[22px] w-auto" />
+        <div className="flex flex-col items-start gap-3">
+          <Image src="/wordmark.png" alt="ExekPro" width={399} height={94} className="h-[22px] w-auto" />
           <p className="max-w-sm text-sm text-muted">Execution infrastructure for intent-driven applications.</p>
         </div>
 
