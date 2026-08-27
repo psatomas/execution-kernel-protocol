@@ -13,14 +13,10 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg/85 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4 sm:px-8">
-        <Link href="#top" className="flex shrink-0 items-center gap-2.5">
-          {/* The mark alone here, not the full wordmark image: its fine
-              rune-style linework only reads clearly at real size (see it
-              full-size in the hero below) -- shrunk to navbar height it
-              blurs into a smudge. The bold mark holds up fine this small,
-              paired with real, legible text for "EXEKPRO". */}
-          <Image src="/icon.png" alt="" aria-hidden="true" width={30} height={30} priority />
-          <span className="font-mono text-lg font-semibold tracking-[0.06em] text-accent">EXEKPRO</span>
+        <Link href="#top" className="flex shrink-0 items-center">
+          {/* The wordmark's own "O" is the brand mark -- one combined image,
+              not mark + separate text (that would show the mark twice). */}
+          <Image src="/wordmark.png" alt="ExekPro" width={110} height={26} priority className="h-[26px] w-auto" />
         </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">

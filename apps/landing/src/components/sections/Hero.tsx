@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { CTALink } from "@/components/ui/CTALink";
 import { FlowDiagram } from "@/components/ui/FlowDiagram";
@@ -9,18 +8,6 @@ export function Hero() {
     <section id="top" className="border-b border-border pb-16 pt-20 sm:pt-28">
       <Container className="flex flex-col gap-10">
         <div className="flex flex-col gap-6">
-          {/* The full wordmark, at a size its own fine linework actually
-              reads at -- the header/footer use the bold mark plus real
-              text instead, precisely because this image doesn't hold up
-              shrunk down that far. */}
-          <Image
-            src="/wordmark.png"
-            alt="ExekPro"
-            width={399}
-            height={94}
-            priority
-            className="h-14 w-auto sm:h-[4.5rem]"
-          />
           <span className="font-mono text-xs uppercase tracking-[0.14em] text-accent">Execution infrastructure</span>
           <h1 className="text-balance text-4xl font-semibold leading-[1.08] text-ink sm:text-5xl lg:text-6xl">
             Execution infrastructure for intent-driven applications.
