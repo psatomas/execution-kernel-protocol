@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 const SITE_URL = "https://exekpro.com";
 const TITLE = "ExekPro — Execution infrastructure for intent-driven applications";
 const DESCRIPTION =
-  "ExekPro is a modular execution kernel: applications express an intent, compatible execution modules are simulated and scored against an explicit policy, and the best-compatible module executes through the user's own wallet.";
+  "ExekPro (Execution Kernel Protocol) is a modular execution kernel: applications express an intent, compatible modules are simulated and scored against an explicit policy, and the best-compatible one executes through the user's own wallet.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
