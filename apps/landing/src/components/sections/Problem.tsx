@@ -15,7 +15,7 @@ export function Problem() {
         <SectionHeading
           eyebrow="The problem"
           title="Hard-coded execution strategies don't age well."
-          lede="Most applications pick one execution path at build time and live with it. ExekPro lets that decision happen at execution time instead, against real, comparable data."
+          lede="Most applications pick one execution path at build time and live with it. ExeKPro lets that decision happen at execution time instead, against real, comparable data."
         />
 
         <div className="grid gap-6 lg:grid-cols-2">
@@ -35,7 +35,7 @@ export function Problem() {
           </div>
 
           <div className="flex flex-col gap-4 rounded-xl border border-accent-soft-border bg-accent-soft p-6">
-            <span className="font-mono text-xs uppercase tracking-wide text-accent">ExekPro</span>
+            <span className="font-mono text-xs uppercase tracking-wide text-accent">ExeKPro</span>
             <ol className="flex flex-col gap-3">
               {["Intent", "Multiple compatible strategies", "Simulation", "Policy-based scoring", "Selected execution"].map(
                 (step, i) => (

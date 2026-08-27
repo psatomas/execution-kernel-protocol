@@ -1,12 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
-import { GITHUB_URL } from "@/lib/links";
+import { CTALink } from "@/components/ui/CTALink";
+import { GITHUB_URL, CONSOLE_URL } from "@/lib/links";
 
 const NAV_LINKS = [
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#modular-execution", label: "Modules" },
-  { href: "#deployments", label: "Deployments" },
-  { href: "#validation", label: "Validation" },
+  { href: "#how-it-works", label: "Protocol" },
+  { href: "#modular-execution", label: "Architecture" },
+  { href: "#developer-experience", label: "Developers" },
 ];
 
 export function SiteHeader() {
@@ -16,7 +16,7 @@ export function SiteHeader() {
         <Link href="#top" className="flex shrink-0 items-center">
           {/* The wordmark's own "O" is the brand mark -- one combined image,
               not mark + separate text (that would show the mark twice). */}
-          <Image src="/wordmark.png" alt="ExekPro" width={399} height={94} priority className="h-[26px] w-auto" />
+          <Image src="/wordmark.png" alt="ExeKPro" width={399} height={94} priority className="h-[26px] w-auto" />
         </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
@@ -25,16 +25,25 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="text-sm text-muted transition-colors hover:text-ink"
+          >
+            GitHub
+          </a>
         </nav>
 
-        <a
-          href={GITHUB_URL}
-          target="_blank"
-          rel="noreferrer noopener"
-          className="inline-flex items-center gap-2 rounded-md border border-border-strong px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:border-accent hover:text-accent"
-        >
-          GitHub
-        </a>
+        {/* The primary product CTA -- leads to the real protocol console
+            (apps/frontend), never a fabricated demo. Deliberately the one
+            filled/prominent button in the header; everything else here is
+            plain text. See lib/links.ts for what CONSOLE_URL points at
+            today (source, since no public console deployment exists yet)
+            versus once a real deployment exists. */}
+        <CTALink href={CONSOLE_URL} variant="primary" external>
+          Launch Console
+        </CTALink>
       </div>
     </header>
   );

@@ -8,18 +8,18 @@ export function Hero() {
     <section id="top" className="border-b border-border pb-16 pt-20 sm:pt-28">
       <Container className="flex flex-col gap-10">
         <div className="flex flex-col gap-6">
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-accent">ExekPro — Execution Kernel Protocol</span>
+          <span className="font-mono text-xs uppercase tracking-[0.14em] text-accent">ExeKPro — Execution Kernel Protocol</span>
           <h1 className="text-balance text-4xl font-semibold leading-[1.08] text-ink sm:text-5xl lg:text-6xl">
             Execution infrastructure for intent-driven applications.
           </h1>
           <p className="text-balance max-w-2xl text-lg leading-relaxed text-muted">
-            ExekPro is a modular execution kernel: applications express an intent, compatible
+            ExeKPro is a modular execution kernel: applications express an intent, compatible
             execution modules are simulated and scored against an explicit policy, and the
             best-compatible module executes — through the end user&rsquo;s own wallet, not ours.
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
             <CTALink href={CONSOLE_URL} variant="primary" external>
-              Explore the Protocol
+              Launch Console
             </CTALink>
             <CTALink href={GITHUB_URL} variant="secondary" external>
               View on GitHub

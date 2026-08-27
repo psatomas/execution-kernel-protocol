@@ -13,11 +13,11 @@ export function FinalCTA() {
           Explore the protocol, inspect the architecture, or deploy your own kernel.
         </p>
         <div className="flex flex-wrap justify-center gap-3 pt-2">
-          <CTALink href={GITHUB_URL} variant="primary" external>
-            Explore GitHub
+          <CTALink href={CONSOLE_URL} variant="primary" external>
+            Launch Console
           </CTALink>
-          <CTALink href={CONSOLE_URL} variant="secondary" external>
-            Open Protocol Console
+          <CTALink href={GITHUB_URL} variant="secondary" external>
+            Explore GitHub
           </CTALink>
         </div>
       </Container>

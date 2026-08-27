@@ -16,7 +16,7 @@ export function B2BDeployments() {
           <ul className="flex flex-col gap-3 text-sm leading-relaxed text-muted">
             <li className="flex gap-3">
               <span aria-hidden="true" className="mt-1 h-1.5 w-1.5 flex-none rounded-full bg-accent" />
-              The customer owns the deployment, through ProtocolRoles — not ExekPro.
+              The customer owns the deployment, through ProtocolRoles — not ExeKPro.
             </li>
             <li className="flex gap-3">
               <span aria-hidden="true" className="mt-1 h-1.5 w-1.5 flex-none rounded-full bg-accent" />
