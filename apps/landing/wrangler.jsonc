@@ -7,7 +7,21 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
-  }
+  },
+  // exekpro.com is split by path across two independently-deployed Workers
+  // (see repo root CLAUDE.md): this Worker (apps/landing, mounted at
+  // basePath "/about") owns everything under /about, and exekpro-console
+  // (apps/frontend) owns "/" via its own "exekpro.com/*" Route. A Cloudflare
+  // Custom Domain can't do this -- it binds the whole hostname to one
+  // Worker exclusively -- so this repo declares Routes instead. Declaring
+  // `routes` here means Wrangler manages them declaratively on deploy; the
+  // zone's previous Custom Domain binding for exekpro.com must be removed
+  // in the dashboard first (Custom Domain and Routes are mutually exclusive
+  // for the same hostname) -- see the deployment report for the exact step.
+  "routes": [
+    { "pattern": "exekpro.com/about", "zone_name": "exekpro.com" },
+    { "pattern": "exekpro.com/about/*", "zone_name": "exekpro.com" }
+  ]
   // No KV/R2 binding, no WORKER_SELF_REFERENCE service binding: this app
   // has zero dynamic data and zero ISR/revalidation (every page is fully
   // static marketing content, see CLAUDE.md) -- the incremental-cache

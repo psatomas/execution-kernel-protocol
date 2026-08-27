@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "exekpro-console",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  // exekpro.com is split by path across two independently-deployed Workers
+  // (see repo root CLAUDE.md): this Worker (apps/frontend, the protocol
+  // console) owns "/" and everything not claimed by a more specific Route;
+  // exekpro-landing (apps/landing, mounted at basePath "/about") owns
+  // "/about" via its own more-specific Routes, which Cloudflare matches in
+  // preference to this wildcard. A Cloudflare Custom Domain can't split a
+  // hostname by path -- it binds the whole hostname to one Worker
+  // exclusively -- so this repo declares a Route instead. Declaring
+  // `routes` here means Wrangler manages it declaratively on deploy; the
+  // zone's existing Custom Domain binding (currently on exekpro-landing)
+  // must be removed in the dashboard first -- see the deployment report.
+  "routes": [{ "pattern": "exekpro.com/*", "zone_name": "exekpro.com" }]
+}
