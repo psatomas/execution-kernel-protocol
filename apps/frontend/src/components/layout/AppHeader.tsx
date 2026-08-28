@@ -42,6 +42,19 @@ export function AppHeader() {
         <h1 className="text-sm font-semibold text-ink">Protocol Console</h1>
       </div>
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        {/* The console (this app) and the public website (apps/landing,
+            served at exekpro.com/about) are separate deployments -- a
+            plain external link, not a Next.js route. Secondary/plain-text
+            styling deliberately, so it doesn't compete with the wallet
+            controls that follow. */}
+        <a
+          href="https://exekpro.com/about"
+          target="_blank"
+          rel="noreferrer noopener"
+          className="text-xs text-muted transition-colors hover:text-ink"
+        >
+          About ↗
+        </a>
         <NetworkBadge />
         <ConnectWallet />
       </div>
